@@ -1,21 +1,18 @@
-import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import * as React from 'react';
+import { useFonts } from 'expo-font';
+import { Slot } from 'expo-router';
 
 export default function RootLayout() {
-
-  useFonts({
-    "OpenSans-Regular": require("../assets/fonts/OpenSans_Condensed-Regular.ttf"),
-    "OpenSans-SemiBold": require("../assets/fonts/OpenSans_Condensed-SemiBold.ttf"),
-    "OpenSans-Bold": require("../assets/fonts/OpenSans_SemiCondensed-ExtraBoldItalic.ttf"),
+  const [fontsLoaded] = useFonts({
+    "Roboto": require("../assets/fonts/Roboto-Regular.ttf"),
+    "Roboto-Bold": require("../assets/fonts/Roboto-Bold.ttf"),
+    "Roboto-Italic": require("../assets/fonts/Roboto-Italic.ttf"),
+    "Roboto-BoldItalic": require("../assets/fonts/Roboto-BoldItalic.ttf"),
   });
-  return (
-    <Stack>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="login/index"
-        options={{
-          headerShown: false,
-        }}
-      />
-    </Stack>
-  );
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  return <Slot />;
 }
