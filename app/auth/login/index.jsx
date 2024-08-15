@@ -4,16 +4,16 @@ import React from 'react';
 export default function LoginScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign in to your account</Text>
+      <Text style={styles.title}>Sign in to your Account</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="Enter your email"
         keyboardType="email-address"
         autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder="Email your password"
         secureTextEntry
       />
       <TouchableOpacity style={styles.loginButton}>
@@ -26,30 +26,39 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'left', 
     backgroundColor: '#ffffff',
     padding: 16,
   },
   title: {
-    fontSize: 24,
+    marginTop: '30%',
+    fontSize: 40,
     fontWeight: 'bold',
     marginBottom: 32,
+    marginLeft: 20,
   },
   input: {
-    width: '100%',
+    width: '90%',
     padding: 12,
     borderWidth: 1,
     borderColor: '#cccccc',
     borderRadius: 8,
-    marginBottom: 16,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginLeft: 20,
+    marginBottom: 10,
+    marginTop: 20,
+    backgroundColor: '#F7F8F9',
   },
   loginButton: {
     backgroundColor: '#000000',
     padding: 12,
-    borderRadius: 8,
-    width: '100%',
+    borderRadius: 10,
+    width: '80%',
     alignItems: 'center',
+    marginTop: 60,
+    marginLeft: 35,
+    height: 50,
   },
   loginButtonText: {
     color: '#ffffff',
