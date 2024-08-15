@@ -1,33 +1,23 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import React from 'react';
 
-export default function RegisterScreen() {
+export default function notification() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome!! Register to get started</Text>
+      <Text style={styles.title}>Notification</Text>
       <TextInput
         style={styles.input}
-        placeholder="username"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="email"
+        placeholder="Enter your email"
         keyboardType="email-address"
         autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
-        placeholder="password"
+        placeholder="Email your password"
         secureTextEntry
       />
-      <TextInput
-        style={styles.input}
-        placeholder="confirm password"
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.registerButton}>
-        <Text style={styles.registerButtonText}>Register</Text>
+      <TouchableOpacity style={styles.loginButton}>
+        <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -41,8 +31,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    marginTop: '20%',
-    fontSize: 30,
+    marginTop: '30%',
+    fontSize: 40,
     fontWeight: 'bold',
     marginBottom: 32,
     marginLeft: 20,
@@ -60,7 +50,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: '#F7F8F9',
   },
-  registerButton: {
+  loginButton: {
     backgroundColor: '#000000',
     padding: 12,
     borderRadius: 10,
@@ -70,7 +60,7 @@ const styles = StyleSheet.create({
     marginLeft: 35,
     height: 50,
   },
-  registerButtonText: {
+  loginButtonText: {
     color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
