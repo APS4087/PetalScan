@@ -1,68 +1,143 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import React from 'react';
 
-export default function notification() {
+export default function NotificationScreen() {
+  // Handler for notification click
+  const handleNotificationClick = (notificationId) => {
+    // Handle the notification click event
+    console.log('Notification clicked:', notificationId);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Notification</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your email"
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email your password"
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.loginButton}>
-        <Text style={styles.loginButtonText}>Login</Text>
-      </TouchableOpacity>
-    </View>
+    <ScrollView style={styles.container}>
+      <View style={styles.notificationContainer}>
+        <Text style={styles.sectionTitle}>Latest Notifications</Text>
+        <TouchableOpacity
+          style={styles.notificationItem}
+          onPress={() => handleNotificationClick(1)}
+        >
+          <View style={styles.notificationTopContainer}>
+            <Text style={styles.smallNotification}>New</Text>
+            <Text style={styles.notificationDate}>Aug 15, 2024</Text>
+          </View>
+          <View style={styles.notificationContent}>
+            <Text style={styles.notificationTitle}>New Update Available</Text>
+            <View style={styles.innerContainer}>
+              <Text style={styles.innerTitle}>Closed until September</Text>
+              <Image
+                source={{ uri: 'https://via.placeholder.com/50' }} // Replace with actual image URL
+                style={styles.innerImage}
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.notificationContainer}>
+        <Text style={styles.oldTitle}>Old Notifications</Text>
+        <TouchableOpacity
+          style={styles.notificationItem}
+          onPress={() => handleNotificationClick(3)}
+        >
+          <View style={styles.notificationTopContainer}>
+            <Text style={styles.smallNotification}>Update</Text>
+            <Text style={styles.notificationDate}>Jul 20, 2024</Text>
+          </View>
+          <View style={styles.notificationContent}>
+            <Text style={styles.notificationTitle}>Feature Update</Text>
+            <View style={styles.oldContainer}>
+              <Text style={styles.innerTitle}>Closed until September</Text>
+              <Image
+                source={{ uri: 'https://via.placeholder.com/50' }} // Replace with actual image URL
+                style={styles.innerImage}
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'left', 
     backgroundColor: '#ffffff',
     padding: 16,
   },
-  title: {
-    marginTop: '30%',
-    fontSize: 40,
-    fontWeight: 'bold',
+  notificationContainer: {
     marginBottom: 32,
-    marginLeft: 20,
   },
-  input: {
-    width: '90%',
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    marginTop: "30%",
+  },
+  oldTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  notificationItem: {
     padding: 12,
-    borderWidth: 1,
-    borderColor: '#cccccc',
-    borderRadius: 8,
-    alignItems: 'center', 
-    justifyContent: 'center',
-    marginLeft: 20,
-    marginBottom: 10,
-    marginTop: 20,
-    backgroundColor: '#F7F8F9',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 15,
+    marginBottom: 16,
+    elevation: 2, // Adds shadow for Android
+    shadowColor: '#000', // Adds shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  loginButton: {
-    backgroundColor: '#000000',
-    padding: 12,
-    borderRadius: 10,
-    width: '80%',
-    alignItems: 'center',
-    marginTop: 60,
-    marginLeft: 35,
-    height: 50,
+  notificationTopContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
-  loginButtonText: {
-    color: '#ffffff',
+  smallNotification: {
+    fontSize: 12,
+    color: '#888888',
+  },
+  notificationDate: {
+    fontSize: 12,
+    color: '#888888',
+  },
+  notificationContent: {
+    marginBottom: 8,
+  },
+  notificationTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  notificationText: {
+    fontSize: 14,
+    color: '#333333',
+  },
+  innerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#149FBF', // Light blue background
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  oldContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#3588C6', // Light blue background
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  innerTitle: {
+    fontSize: 14,
+    color: '#333333',
+    flex: 1,
+  },
+  innerImage: {
+    width: 60,
+    height: 50,
+    borderRadius: 10, // Square image
   },
 });
