@@ -106,7 +106,6 @@ const styles = StyleSheet.create({
     height: 30,
     width: 30,
     marginLeft: 20,
-    marginTop: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -153,7 +152,7 @@ const styles = StyleSheet.create({
   },
   loginLinkButton: {
     marginTop: 10,
-    width: '50%',
+    width: '55%',
     alignSelf: 'center',
     justifyContent: 'center',
   },
