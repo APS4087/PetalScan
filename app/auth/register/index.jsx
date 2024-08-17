@@ -1,57 +1,106 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import React from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
-
-
+import { auth, db } from '../../../firebaseConfig';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 export default function RegisterScreen() {
-
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
+
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+    try {
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Send email verification
+      await sendEmailVerification(user);
+
+      // Save user data to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        username,
+        email,
+        createdAt: new Date().toISOString()
+      });
+
+      alert('Registration successful! Please verify your email.');
+      router.push('/auth/login');
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.logo} onPress={() => router.push('/auth')}>
-        <Image source={require('../../../assets/Icons/backArrow.png')} style={styles.arrow} />
-      </TouchableOpacity>
-      <Text style={styles.title}>Welcome!! Register to get started</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="username"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="email"
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="password"
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="confirm password"
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.registerButton}>
-        <Text style={styles.registerButtonText}>Register</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.loginLinkButton} onPress={()=>router.push('/auth/login')}>
-        <Text style={styles.alreadyHaveAccountText}>Already have an account ?
-        <Text style={styles.loginLinkButtonText}>   Login Now</Text>
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} 
+    >
+      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        <TouchableOpacity style={styles.logo} onPress={() => router.push('/auth')}>
+          <Image source={require('../../../assets/Icons/backArrow.png')} style={styles.arrow} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Welcome!! Register to get started</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Username"
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm password"
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+        />
+        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+          <Text style={styles.registerButtonText}>Register</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.loginLinkButton} onPress={() => router.push('/auth/login')}>
+          <Text style={styles.alreadyHaveAccountText}>Already have an account?
+            <Text style={styles.loginLinkButtonText}>   Login Now</Text>
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'left', 
     backgroundColor: '#ffffff',
     padding: 16,
+  },
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   logo: {
     height: 30,
@@ -79,11 +128,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#cccccc',
     borderRadius: 8,
-    alignItems: 'center', 
-    justifyContent: 'center',
     marginLeft: 20,
     marginBottom: 10,
-    marginTop: 10,
     backgroundColor: '#F7F8F9',
   },
   registerButton: {
@@ -104,14 +150,12 @@ const styles = StyleSheet.create({
   alreadyHaveAccountText: {
     fontSize: 10,
     width: '100%',
-    // borderWidth: 1,
   },
   loginLinkButton: {
     marginTop: 10,
     width: '50%',
     alignSelf: 'center',
     justifyContent: 'center',
-
   },
   loginLinkButtonText: {
     color: '#0000EE',
