@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingBottom: 20, // Add padding to avoid the bottom content being hidden
+    paddingBottom: 20, 
   },
   logo: {
     height: 30,
