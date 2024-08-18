@@ -5,14 +5,18 @@ import { auth, db } from '../../../firebaseConfig';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 
+// Register screen component
 export default function RegisterScreen() {
+  // State variables to store user input
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
 
+  // Function to handle user registration
   const handleRegister = async () => {
+    // Check if passwords match
     if (password !== confirmPassword) {
       alert('Passwords do not match!');
       return;
@@ -32,6 +36,7 @@ export default function RegisterScreen() {
         createdAt: new Date().toISOString()
       });
 
+      // Show success message and redirect to login screen
       alert('Registration successful! Please verify your email.');
       router.push('/auth/login');
     } catch (error) {
@@ -46,10 +51,13 @@ export default function RegisterScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} 
     >
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        {/* Back button to navigate to the previous screen */}
         <TouchableOpacity style={styles.logo} onPress={() => router.push('/auth')}>
           <Image source={require('../../../assets/Icons/backArrow.png')} style={styles.arrow} />
         </TouchableOpacity>
+        {/* Title text */}
         <Text style={styles.title}>Welcome!! Register to get started</Text>
+        {/* Username input field */}
         <TextInput
           style={styles.input}
           placeholder="Username"
@@ -57,6 +65,7 @@ export default function RegisterScreen() {
           onChangeText={setUsername}
           autoCapitalize="none"
         />
+        {/* Email input field */}
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -65,6 +74,7 @@ export default function RegisterScreen() {
           onChangeText={setEmail}
           autoCapitalize="none"
         />
+        {/* Password input field */}
         <TextInput
           style={styles.input}
           placeholder="Password"
@@ -72,6 +82,7 @@ export default function RegisterScreen() {
           value={password}
           onChangeText={setPassword}
         />
+        {/* Confirm password input field */}
         <TextInput
           style={styles.input}
           placeholder="Confirm password"
@@ -79,9 +90,11 @@ export default function RegisterScreen() {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
         />
+        {/* Register button */}
         <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
           <Text style={styles.registerButtonText}>Register</Text>
         </TouchableOpacity>
+        {/* Login link for users who already have an account */}
         <TouchableOpacity style={styles.loginLinkButton} onPress={() => router.push('/auth/login')}>
           <Text style={styles.alreadyHaveAccountText}>Already have an account?
             <Text style={styles.loginLinkButtonText}>   Login Now</Text>
@@ -92,6 +105,7 @@ export default function RegisterScreen() {
   );
 }
 
+// Styles for the RegisterScreen component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
