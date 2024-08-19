@@ -1,20 +1,28 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import React from 'react';
+import { useRouter } from 'expo-router';
 
 export default function NotificationScreen() {
+  const router = useRouter();
+
   // Handler for notification click
-  const handleNotificationClick = (notificationId) => {
-    // Handle the notification click event
-    console.log('Notification clicked:', notificationId);
+  const handleNotificationClick = () => {
+    // Navigate directly to the NotificationDetailScreen in the insideNotification folder
+    router.push('/notification/insideNotification');
   };
 
   return (
     <ScrollView style={styles.container}>
+      {/* Back button to navigate to the previous screen */}
+      <TouchableOpacity style={styles.logo} onPress={() => router.push('/auth')}>
+        <Image source={require('../../assets/Icons/backArrow.png')} style={styles.arrow} />
+      </TouchableOpacity>
+
       <View style={styles.notificationContainer}>
         <Text style={styles.sectionTitle}>Latest Notifications</Text>
         <TouchableOpacity
           style={styles.notificationItem}
-          onPress={() => handleNotificationClick(1)}
+          onPress={handleNotificationClick}  // No parameters needed, just navigate
         >
           <View style={styles.notificationTopContainer}>
             <Text style={styles.smallNotification}>New</Text>
@@ -25,7 +33,7 @@ export default function NotificationScreen() {
             <View style={styles.innerContainer}>
               <Text style={styles.innerTitle}>Closed until September</Text>
               <Image
-                source={{ uri: 'https://via.placeholder.com/50' }} // Replace with actual image URL
+                source={require('../../assets/images/parkImage.jpg')} // Using local image
                 style={styles.innerImage}
               />
             </View>
@@ -33,11 +41,11 @@ export default function NotificationScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.notificationContainer}>
+      <View style={styles.notificationBottonContainer}>
         <Text style={styles.oldTitle}>Old Notifications</Text>
         <TouchableOpacity
           style={styles.notificationItem}
-          onPress={() => handleNotificationClick(3)}
+          onPress={handleNotificationClick}  // No parameters needed, just navigate
         >
           <View style={styles.notificationTopContainer}>
             <Text style={styles.smallNotification}>Update</Text>
@@ -48,7 +56,7 @@ export default function NotificationScreen() {
             <View style={styles.oldContainer}>
               <Text style={styles.innerTitle}>Closed until September</Text>
               <Image
-                source={{ uri: 'https://via.placeholder.com/50' }} // Replace with actual image URL
+                source={require('../../assets/images/parkImage.jpg')} // Using local image
                 style={styles.innerImage}
               />
             </View>
@@ -59,14 +67,33 @@ export default function NotificationScreen() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
-    padding: 16,
+    padding: 30,
+    marginTop: -20,
   },
   notificationContainer: {
-    marginBottom: 32,
+    marginBottom: 10,
+    marginTop: -60,
+  },
+  notificationBottonContainer: {
+    marginBottom: 10,
+
+  },
+  logo: {
+    height: 20,
+    width: 20,
+    justifyContent: 'left',
+    alignItems: 'left',
+    marginTop: '15%',
+  },
+  arrow: {
+    height: '200%',
+    width: '100%',
+    resizeMode: 'contain',
   },
   sectionTitle: {
     fontSize: 24,
@@ -83,7 +110,7 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: '#f9f9f9',
     borderRadius: 15,
-    marginBottom: 16,
+    marginBottom: 30,
     elevation: 2, // Adds shadow for Android
     shadowColor: '#000', // Adds shadow for iOS
     shadowOffset: { width: 0, height: 2 },
