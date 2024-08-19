@@ -12,6 +12,7 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   // Function to handle user registration
@@ -21,6 +22,7 @@ export default function RegisterScreen() {
       alert('Passwords do not match!');
       return;
     }
+    setLoading(true); // Set loading to true
     try {
       // Create user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -30,20 +32,24 @@ export default function RegisterScreen() {
       await sendEmailVerification(user);
 
       // Save user data to Firestore
+      console.log('Saving user data to Firestore...');
       await setDoc(doc(db, 'users', user.uid), {
         username,
         email,
         createdAt: new Date().toISOString()
       });
+      console.log('User data saved to Firestore.');
 
       // Show success message and redirect to login screen
       alert('Registration successful! Please verify your email.');
       router.push('/auth/login');
     } catch (error) {
-      alert(error.message);
+      console.error('Error during registration:', error);
+      alert(`Registration failed: ${error.message}`);
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
