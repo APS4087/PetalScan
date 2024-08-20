@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { auth, db } from '../../../firebaseConfig';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import { getCustomErrorMessage } from '../utils/authUtils';
 
 // Register screen component
 export default function RegisterScreen() {
@@ -14,6 +15,7 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Function to handle user registration
   const handleRegister = async () => {
@@ -44,8 +46,7 @@ export default function RegisterScreen() {
       alert('Registration successful! Please verify your email.');
       router.push('/auth/login');
     } catch (error) {
-      console.error('Error during registration:', error);
-      alert(`Registration failed: ${error.message}`);
+      setErrorMessage(getCustomErrorMessage(error));
     } finally {
       setLoading(false); // Set loading to false
     }
@@ -63,6 +64,7 @@ export default function RegisterScreen() {
         </TouchableOpacity>
         {/* Title text */}
         <Text style={styles.title}>Welcome!! Register to get started</Text>
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         {/* Username input field */}
         <TextInput
           style={styles.input}
@@ -180,5 +182,10 @@ const styles = StyleSheet.create({
     color: '#0000EE',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    marginLeft: 20,
   },
 });
