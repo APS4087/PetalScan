@@ -51,11 +51,12 @@ export default function RegisterScreen() {
       setLoading(false); // Set loading to false
     }
   };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} 
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
     >
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
         {/* Back button to navigate to the previous screen */}
@@ -69,6 +70,7 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Username"
+          placeholderTextColor="#8a8a8a" // Set placeholder text color
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
@@ -77,6 +79,7 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Email"
+          placeholderTextColor="#8a8a8a" // Set placeholder text color
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
@@ -86,6 +89,7 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Password"
+          placeholderTextColor="#8a8a8a" // Set placeholder text color
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -94,6 +98,7 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Confirm password"
+          placeholderTextColor="#8a8a8a" // Set placeholder text color
           secureTextEntry
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -152,6 +157,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginBottom: 10,
     backgroundColor: '#F7F8F9',
+    color: 'black', // Set text color
   },
   registerButton: {
     backgroundColor: '#000000',
