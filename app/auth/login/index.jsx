@@ -6,8 +6,10 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { getCustomErrorMessage } from '../utils/authUtils';
 
 export default function LoginScreen() {
+  // Initialize the router
   const router = useRouter();
 
+  // Initialize the state variables
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
