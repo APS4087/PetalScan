@@ -52,6 +52,9 @@ export default function AuthScreen() {
       <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/auth/login')}>
         <Text style={[styles.loginButtonText, styles.fontBold]}>Login</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.registerButton} onPress={() => router.push('/admin')}>
+        <Text style={[styles.registerButtonText, styles.fontRegular]}>Admin</Text>
+      </TouchableOpacity> 
       <TouchableOpacity style={styles.registerButton} onPress={() => router.push('/notification')}>
         <Text style={[styles.registerButtonText, styles.fontRegular]}>Notification</Text>
       </TouchableOpacity> 
