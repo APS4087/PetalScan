@@ -1,7 +1,10 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native';
+import { useRouter } from 'expo-router';
+
 
 function Navibar({ navigation }) {
+  const router = useRouter();
   return (
     <View style={styles.navbar}>
       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -14,7 +17,7 @@ function Navibar({ navigation }) {
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Database')}>
+      <TouchableOpacity onPress={() => router.push('/database')}>
         <View style={styles.navItem}>
           <Image
             source={require('../../../assets/Icons/maps.png')} // Replace with actual icon
