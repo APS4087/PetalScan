@@ -11,6 +11,11 @@ function Database({ navigation }) {
     router.push('/database/AddDatabase');
   };
 
+    // Handler for update database click
+  const updateonClick = () => {
+    router.push('/database/updateDatabase');
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
@@ -49,7 +54,7 @@ function Database({ navigation }) {
         </TouchableOpacity>
 
         {/* Other Image Cards */}
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={updateonClick} >
           <Image source={require('../../assets/images/parkImage.jpg')} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 1</Text>
         </TouchableOpacity>
@@ -74,7 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backButton: {
-    marginTop: 20,
+    marginTop: 50,
     marginLeft: 10,
   },
   searchBarContainer: {
