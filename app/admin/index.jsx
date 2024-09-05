@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import Navibar from './Navibar/Navibar.js';
+import { MaterialIcons } from '@expo/vector-icons'; // For icons (increase/decrease arrows)
 
 function Admin({ navigation }) {
   // Sample data, replace with actual data fetching logic
   const [totalUsers, setTotalUsers] = useState(150);
   const [totalData, setTotalData] = useState(200); // Number of architecture + flowers
   const [totalNotifications, setTotalNotifications] = useState(20);
+  const [revenue, setRevenue] = useState(50000); // Example revenue
+  
+  // Sample change indicators
+  const userChange = 10; // Positive for increase, negative for decrease
+  const dataChange = -15;
+  const notificationChange = 5;
 
   return (
     <View style={styles.container}>
@@ -20,21 +26,60 @@ function Admin({ navigation }) {
         {/* Cards Section */}
         <View style={styles.cardContainer}>
           <TouchableOpacity style={styles.card}>
-            <Text style={styles.cardTitle}>Total User</Text>
-            <Text style={styles.cardNumber}>{totalUsers}</Text>
+            <Text style={styles.cardTitle}>Total Users</Text>
+            <View style={styles.cardRow}>
+              <Text style={styles.cardNumber}>{totalUsers}</Text>
+              <View style={styles.changeIndicator}>
+                <MaterialIcons
+                  name={userChange >= 0 ? 'arrow-upward' : 'arrow-downward'}
+                  size={20}
+                  color={userChange >= 0 ? 'green' : 'red'}
+                />
+                <Text style={{ color: userChange >= 0 ? 'green' : 'red' }}>
+                  {Math.abs(userChange)} {userChange >= 0 ? 'added' : 'lost'}
+                </Text>
+              </View>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.card}>
             <Text style={styles.cardTitle}>Total Data</Text>
-            <Text style={styles.cardNumber}>{totalData}</Text>
+            <View style={styles.cardRow}>
+              <Text style={styles.cardNumber}>{totalData}</Text>
+              <View style={styles.changeIndicator}>
+                <MaterialIcons
+                  name={dataChange >= 0 ? 'arrow-upward' : 'arrow-downward'}
+                  size={20}
+                  color={dataChange >= 0 ? 'green' : 'red'}
+                />
+                <Text style={{ color: dataChange >= 0 ? 'green' : 'red' }}>
+                  {Math.abs(dataChange)} {dataChange >= 0 ? 'added' : 'lost'}
+                </Text>
+              </View>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.card}>
-            <Text style={styles.cardTitle}>Total Notification</Text>
-            <Text style={styles.cardNumber}>{totalNotifications}</Text>
+            <Text style={styles.cardTitle}>Total Notifications</Text>
+            <View style={styles.cardRow}>
+              <Text style={styles.cardNumber}>{totalNotifications}</Text>
+              <View style={styles.changeIndicator}>
+                <MaterialIcons
+                  name={notificationChange >= 0 ? 'arrow-upward' : 'arrow-downward'}
+                  size={20}
+                  color={notificationChange >= 0 ? 'green' : 'red'}
+                />
+                <Text style={{ color: notificationChange >= 0 ? 'green' : 'red' }}>
+                  {Math.abs(notificationChange)} {notificationChange >= 0 ? 'added' : 'lost'}
+                </Text>
+              </View>
+            </View>
           </TouchableOpacity>
+
+          
         </View>
       </ScrollView>
+
       {/* Navigation Bar at the Bottom */}
       <Navibar navigation={navigation} />
     </View>
@@ -79,11 +124,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   cardNumber: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
-    marginTop: 10,
+  },
+  changeIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 
