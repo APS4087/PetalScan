@@ -1,8 +1,9 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native';
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
-import Navibar from './Navibar/Navibar.js';  // Ensure Navibar is correctly imported
+import AdminNavbar from '../../../components/AdminNavbar';
 import { MaterialIcons } from '@expo/vector-icons';  // Import MaterialIcons
+import images from '../../../components/data';
 
 export default function AdminNotificationScreen({ navigation }){
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function AdminNotificationScreen({ navigation }){
 
   // Handler for add notification click
   const adminNotifonClick = () => {
-    router.push('/adminNotif/addNotif');
+    router.push('/adminHome/notification/addNotification');
   };
 
   return (
@@ -28,7 +29,7 @@ export default function AdminNotificationScreen({ navigation }){
           {/* Search Bar with Icon */}
           <View style={styles.searchContainer}>
             <Image
-              source={require('../../assets/Icons/search.png')}
+              source={images.searchIcon}
               style={styles.searchIcon}
             />
             <TextInput
@@ -68,7 +69,7 @@ export default function AdminNotificationScreen({ navigation }){
               <View style={styles.innerContainer}>
                 <Text style={styles.innerTitle}>Closed until September</Text>
                 <Image
-                  source={require('../../assets/images/parkImage.jpg')}
+                  source={images.parkImage}
                   style={styles.innerImage}
                 />
               </View>
@@ -90,7 +91,7 @@ export default function AdminNotificationScreen({ navigation }){
               <View style={styles.oldContainer}>
                 <Text style={styles.innerTitle}>Closed until September</Text>
                 <Image
-                  source={require('../../assets/images/parkImage.jpg')}
+                  source={images.parkImage}
                   style={styles.innerImage}
                 />
               </View>
@@ -101,7 +102,7 @@ export default function AdminNotificationScreen({ navigation }){
 
       {/* Navigation Bar at the Bottom */}
       <View style={styles.navibarContainer}>
-        <Navibar navigation={navigation} />
+        <AdminNavbar navigation={navigation} />
       </View>
     </View>
   );

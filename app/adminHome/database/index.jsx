@@ -2,18 +2,19 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // For back icon
 import { useRouter } from 'expo-router';
+import images from '../../../components/data';
 
 function Database({ navigation }) {
     const router = useRouter();
 
     // Handler for add database click
-  const databaseonClick = () => {
-    router.push('/database/AddDatabase');
+  const addonClick = () => {
+    router.push('adminHome/database/architecture/add');
   };
 
     // Handler for update database click
   const updateonClick = () => {
-    router.push('/database/updateDatabase');
+    router.push('/adminHome/database/architecture/update');
   };
 
   return (
@@ -27,7 +28,7 @@ function Database({ navigation }) {
 
         {/* Search Bar with Icon */}
         <View style={styles.searchBarContainer}>
-          <Image source={require('../../assets/Icons/search.png')} style={styles.searchIcon} />
+          <Image source={images.searchIcon} style={styles.searchIcon} />
           <TextInput
             style={styles.searchBar}
             placeholder="Search"
@@ -49,18 +50,18 @@ function Database({ navigation }) {
         </View>
 
         {/* First Card (Modified) - Add Database */}
-        <TouchableOpacity style={styles.emptyCard} onPress={databaseonClick}>
+        <TouchableOpacity style={styles.emptyCard} onPress={addonClick}>
           <MaterialIcons name="add" size={48} color="gray" />
         </TouchableOpacity>
 
         {/* Other Image Cards */}
         <TouchableOpacity style={styles.card} onPress={updateonClick} >
-          <Image source={require('../../assets/images/parkImage.jpg')} style={styles.cardImage} />
+          <Image source={images.parkImage} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 1</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.card}>
-          <Image source={require('../../assets/images/sbgPlace2.jpg')} style={styles.cardImage} />
+          <Image source={images.parkImage2} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 2</Text>
         </TouchableOpacity>
 

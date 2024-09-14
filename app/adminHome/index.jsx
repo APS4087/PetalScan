@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import Navibar from './Navibar/Navibar.js';
+import AdminNavbar from '../../components/AdminNavbar';
 import { MaterialIcons } from '@expo/vector-icons'; // For icons (increase/decrease arrows)
 
 function Admin({ navigation }) {
@@ -81,7 +81,7 @@ function Admin({ navigation }) {
       </ScrollView>
 
       {/* Navigation Bar at the Bottom */}
-      <Navibar navigation={navigation} />
+      <AdminNavbar navigation={navigation} />
     </View>
   );
 }

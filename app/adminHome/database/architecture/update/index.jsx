@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker'; // For image picking
 import { Picker } from '@react-native-picker/picker'; // For category picker
 import { useRouter } from 'expo-router';
 
-function AddDatabase({ navigation }) {
+function UpdateDatabase({ navigation }) {
   const [selectedImages, setSelectedImages] = useState([]); // To store selected images
   const [description, setDescription] = useState('');
   const [googleLink, setGoogleLink] = useState('');
@@ -31,12 +31,12 @@ function AddDatabase({ navigation }) {
       <ScrollView style={styles.content}>
 
         {/* Back Button */}
-        <TouchableOpacity onPress={() => router.push('/database')} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.push('/adminHome/database')} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={28} color="black" />
         </TouchableOpacity>
 
         {/* Title */}
-        <Text style={styles.title}>Add Database</Text>
+        <Text style={styles.title}>Database Information</Text>
 
         {/* Image Picker Container */}
         <TouchableOpacity style={styles.imageContainer} onPress={pickImages}>
@@ -87,9 +87,14 @@ function AddDatabase({ navigation }) {
         </View>
 
         {/* Publish Button */}
-        <TouchableOpacity style={styles.publishButton}>
-          <Text style={styles.publishText}>Publish</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.updateButton}>
+            <Text style={styles.buttonText}>Update</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.deleteButton}>
+            <Text style={styles.buttonText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -111,7 +116,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 40,
+    marginBottom: 30,
     textAlign: 'center',
   },
   imageContainer: {
@@ -147,17 +152,36 @@ const styles = StyleSheet.create({
     borderColor: '#cccccc',
     marginBottom: 20,
   },
-  publishButton: {
-    backgroundColor: '#000',
-    padding: 15,
-    borderRadius: 10,
+  
+  buttonContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    marginTop: 10,
     alignItems: 'center',
   },
-  publishText: {
+  updateButton: {
+    backgroundColor: '#000',
+    padding: 15,
+    borderRadius: 14,
+    flex: 0.48,
+    alignItems: 'center',
+    width: '90%',
+  },
+  deleteButton: {
+    backgroundColor: '#B4181B',
+    padding: 15,
+    borderRadius: 14,
+    flex: 0.48,
+    alignItems: 'center',
+    width: '90%',
+    marginTop: 10,
+  },
+  buttonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
+  
 });
 
-export default AddDatabase;
+export default UpdateDatabase;
