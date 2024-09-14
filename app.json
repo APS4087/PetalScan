@@ -6,6 +6,10 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "PentalScan",
+    "permissions": [
+      "CAMERA",
+      "CAMERA_ROLL"
+    ],
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
