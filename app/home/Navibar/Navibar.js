@@ -1,17 +1,22 @@
-
-// App.jsx
-
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { Image } from 'react-native';
-import { Button, View, Text } from 'react-native';
+import { Button, View, Text, Linking } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const Stack = createStackNavigator();
 
 function Navibar() {
+  const router = useRouter();
+
+  // Function to open Google Maps with current location search
+  const openMaps = () => {
+    const url = 'https://www.google.com/maps/search/?api=1&query=Current+Location';
+    Linking.openURL(url).catch(err => console.error('An error occurred', err));
+  };
+
   return (
     <View style={styles.navbar}>
       <TouchableOpacity style={styles.iconButton}>
@@ -20,10 +25,10 @@ function Navibar() {
       <TouchableOpacity style={styles.iconButton}>
         <Image source={require('../../../assets/Icons/search.png')} style={styles.icon} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.iconButton}>
+      <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/home/CameraScreen')} > 
         <Image source={require('../../../assets/Icons/scan.png')} style={styles.icon} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.iconButton}>
+      <TouchableOpacity style={styles.iconButton} onPress={openMaps}>
         <Image source={require('../../../assets/Icons/maps.png')} style={styles.icon} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.iconButton}>
@@ -49,6 +54,8 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
   },
+
+  
 });
 
 export default Navibar;
