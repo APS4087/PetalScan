@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { auth, db } from '../../../firebaseConfig';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { getCustomErrorMessage } from '../utils/authUtils';
+import { getCustomErrorMessage } from '../../../utils/authUtils';
 
 // Register screen component
 export default function RegisterScreen() {

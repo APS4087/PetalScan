@@ -1,19 +1,20 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import images from '../../../../components/data';
 
-export default function NotificationDetailScreen() {
+export default function Notification() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
       {/* Background image */}
-      <Image source={require('../../../assets/images/parkImage.jpg')} style={styles.backgroundImage} />
+      <Image source={images.parkImage} style={styles.backgroundImage} />
 
       {/* Back button */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <View style={styles.backButtonContent}>
-          <Image source={require('../../../assets/Icons/backArrow.png')} style={styles.backArrow} />
+          <Image source={images.backArrowIcon} style={styles.backArrow} />
           <Text style={styles.backButtonText}>Back</Text>
         </View>
       </TouchableOpacity>

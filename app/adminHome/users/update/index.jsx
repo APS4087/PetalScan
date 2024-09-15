@@ -22,7 +22,7 @@ export default function CreateUserScreen() {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
           {/* Back button to navigate to the previous screen */}
-          <TouchableOpacity onPress={() => router.push('/user')} style={styles.backButton}>
+          <TouchableOpacity onPress={() => router.push('/adminHome/users')} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={30} color="black" />
           </TouchableOpacity>
 

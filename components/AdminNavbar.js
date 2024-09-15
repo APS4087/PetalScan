@@ -7,20 +7,20 @@ function AdminNavbar({ navigation }) {
   const router = useRouter();
   return (
     <View style={styles.navbar}>
-      <TouchableOpacity onPress={() => router.push("/admin")}>
+      <TouchableOpacity onPress={() => router.push("/adminHome")}>
         <View style={styles.navItem}>
           <Image source={images.homeIcon} style={styles.icon} />
           <Text style={styles.label}>Home</Text>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/adminHome/database")}>
+      <TouchableOpacity onPress={() => router.push("/adminHome/data")}>
         <View style={styles.navItem}>
           <Image
             source={images.mapsIcon} // Replace with actual icon
             style={styles.icon}
           />
-          <Text style={styles.label}>Database</Text>
+          <Text style={styles.label}>Data</Text>
         </View>
       </TouchableOpacity>
 
@@ -31,7 +31,7 @@ function AdminNavbar({ navigation }) {
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/user")}>
+      <TouchableOpacity onPress={() => router.push("/adminHome/users")}>
         <View style={styles.navItem}>
           <Image source={images.profileIcon} style={styles.icon} />
           <Text style={styles.label}>User</Text>

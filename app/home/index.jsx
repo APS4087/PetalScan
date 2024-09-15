@@ -2,15 +2,13 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native';
 import { Image } from 'react-native';
-import Navibar from './Navibar/Navibar.js';
+import UserNavbar from '../../components/UserNavbar';
 import { useRouter } from 'expo-router';
+import images from '../../components/data';
 
 function HomeScreen() {
   const router = useRouter();
 
-  const handleNavigation = (page) => {
-    router.push(page);
-  };
 
   return (
     <View style={styles.container}>
@@ -18,8 +16,8 @@ function HomeScreen() {
         {/* Header Section */}
         <View style={styles.header}>
           <Text style={styles.greeting}>Hello, User</Text>
-          <TouchableOpacity>
-            <Image source={require('../../assets/Icons/notification.png')} style={styles.icon} />
+          <TouchableOpacity onPress={()=>router.push("/home/notifications")}>
+            <Image source={images.notifcationIcon} style={styles.icon} />
           </TouchableOpacity>
         </View>
 
@@ -33,7 +31,7 @@ function HomeScreen() {
 
         {/* Categories */}
         <View style={styles.categories}>
-          <TouchableOpacity style={styles.categoryButton} onPress={() => handleNavigation('/architecture/architecture')}>
+          <TouchableOpacity style={styles.categoryButton} onPress={() => router.push('/home/architecture')}>
             <Text style={styles.categoryText}>Architecture</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.categoryButton} onPress={() => handleNavigation('/flower/flower')}>
@@ -43,22 +41,22 @@ function HomeScreen() {
 
         {/* Image Cards */}
         <TouchableOpacity style={styles.card} onPress={() => handleNavigation('/architecture/architecture')}>
-          <Image source={require('../../assets/images/parkImage.jpg')} style={styles.cardImage} />
+          <Image source={images.parkImage} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 1</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.card} onPress={() => handleNavigation('/architecture/architecture')}>
-          <Image source={require('../../assets/images/sbgPlace2.jpg')} style={styles.cardImage} />
+          <Image source={images.parkImage2} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 2</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.card} onPress={() => handleNavigation('/architecture/architecture')}>
-          <Image source={require('../../assets/images/place3.jpg')} style={styles.cardImage} />
+          <Image source={images.parkImage3} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 3</Text>
         </TouchableOpacity>
       </ScrollView>
       {/* Navigation Bar at the Bottom */}
-      <Navibar />
+      <UserNavbar />
     </View>
   );
 }

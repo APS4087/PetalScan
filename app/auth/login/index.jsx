@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { auth } from '../../../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { getCustomErrorMessage } from '../utils/authUtils';
+import { getCustomErrorMessage } from '../../../utils/authUtils';
 
 export default function LoginScreen() {
   // Initialize the router

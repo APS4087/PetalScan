@@ -3,18 +3,19 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView 
 import { MaterialIcons } from '@expo/vector-icons'; // For back icon
 import { useRouter } from 'expo-router';
 import images from '../../../components/data';
+import AdminNavbar from '../../../components/AdminNavbar';
 
 function Database({ navigation }) {
     const router = useRouter();
 
     // Handler for add database click
   const addonClick = () => {
-    router.push('adminHome/database/architecture/add');
+    router.push('adminHome/data/architecture/add');
   };
-
+   
     // Handler for update database click
   const updateonClick = () => {
-    router.push('/adminHome/database/architecture/update');
+    router.push('/adminHome/data/architecture/update');
   };
 
   return (
@@ -22,7 +23,7 @@ function Database({ navigation }) {
       <ScrollView style={styles.content}>
 
         {/* Back Button */}
-        <TouchableOpacity onPress={() => router.push('/admin')} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.push('/adminHome')} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={28} color="black" />
         </TouchableOpacity>
 
@@ -64,8 +65,11 @@ function Database({ navigation }) {
           <Image source={images.parkImage2} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 2</Text>
         </TouchableOpacity>
-
       </ScrollView>
+      {/* Navigation Bar at the Bottom */}
+      <View style={styles.navibarContainer}>
+        <AdminNavbar navigation={navigation} />
+      </View>
     </View>
   );
 }
@@ -146,6 +150,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  navibarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });
 

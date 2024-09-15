@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Image, StyleSheet, ScrollView, ImageBackground, TouchableOpacity, Text } from 'react-native';
 import { useRouter } from 'expo-router';
+import images from '../../../components/data';
 
 const ArchitectureSite = () => {
   const router = useRouter();
@@ -9,7 +10,7 @@ const ArchitectureSite = () => {
     <View style={styles.container}>
       {/* Back Arrow */}
       <TouchableOpacity onPress={() => router.push('/home')}>
-        <Image source={require('../../assets/Icons/backArrow.png')} style={styles.backArrow} />
+        <Image source={images.backArrowIcon} style={styles.backArrow} />
       </TouchableOpacity>
 
       {/* Search Bar */}
@@ -23,19 +24,19 @@ const ArchitectureSite = () => {
       {/* Image Cards */}
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.card}>
-          <ImageBackground source={require('../../assets/images/parkImage.jpg')} style={styles.cardImage}>
+          <ImageBackground source={images.parkImage} style={styles.cardImage}>
             <Text style={styles.cardText}>PLACE 1</Text>
           </ImageBackground>
         </View>
 
         <View style={styles.card}>
-          <ImageBackground source={require('../../assets/images/sbgPlace2.jpg')} style={styles.cardImage}>
+          <ImageBackground source={images.parkImage2} style={styles.cardImage}>
             <Text style={styles.cardText}>PLACE 2</Text>
           </ImageBackground>
         </View>
 
         <View style={styles.card}>
-          <ImageBackground source={require('../../assets/images/place3.jpg')} style={styles.cardImage}>
+          <ImageBackground source={images.parkImage3} style={styles.cardImage}>
             <Text style={styles.cardText}>PLACE 3</Text>
           </ImageBackground>
         </View>

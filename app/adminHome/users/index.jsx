@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // For icons
-import Navibar from './Navibar/Navibar.js';
 import { useRouter } from 'expo-router';
+import AdminNavbar from '../../../components/AdminNavbar.js';
+import images from '../../../components/data.js';
 
 function UserPage({ navigation }) {
   const router = useRouter();
   
    // Handler for add user click
-   const useronClick = () => {
-    router.push('/user/createUser');
+   const addOnClick = () => {
+    router.push('/adminHome/users/create');
   };
 
    // Handler for update user click
    const updateUseronClick = () => {
-    router.push('/user/updateUser');
+    router.push('/adminHome/users/update');
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,7 +41,7 @@ function UserPage({ navigation }) {
 
         {/* Search Bar */}
         <View style={styles.searchBarContainer}>
-          <Image source={require('../../assets/Icons/search.png')} style={styles.searchIcon} />
+          <Image source={images.searchIcon} style={styles.searchIcon} />
           <TextInput
             style={styles.searchBar}
             placeholder="Search"
@@ -49,7 +50,7 @@ function UserPage({ navigation }) {
         </View>
 
         {/* Add New User */}
-        <TouchableOpacity style={styles.addUserContainer} onPress={useronClick}>
+        <TouchableOpacity style={styles.addUserContainer} onPress={addOnClick}>
           <MaterialIcons name="add" size={30} color="gray" />
         </TouchableOpacity>
 
@@ -74,7 +75,7 @@ function UserPage({ navigation }) {
           </View>
         ))}
       </ScrollView>
-      <Navibar navigation={navigation} />
+      <AdminNavbar navigation={navigation} />
     </View>
   );
 }

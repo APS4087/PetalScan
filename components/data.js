@@ -5,12 +5,18 @@ const images = {
   // Images
   parkImage: require("../assets/images/parkImage.jpg"),
   parkImage2: require("../assets/images/sbgPlace2.jpg"),
+  parkImage3: require("../assets/images/place3.jpg"),
   // Icons
+  backArrowIcon: require("../assets/Icons/backArrow.png"),
   homeIcon: require("../assets/Icons/home.png"),
   mapsIcon: require("../assets/Icons/maps.png"),
   notificationIcon: require("../assets/Icons/notification.png"),
   profileIcon: require("../assets/Icons/profile.png"),
   searchIcon: require("../assets/Icons/search.png"),
+  scanIcon: require("../assets/Icons/scan.png"),
+  mapsIcon: require("../assets/Icons/maps.png"),
+  profileIcon: require("../assets/Icons/profile.png"),
+  notifcationIcon: require("../assets/Icons/notification.png"),
 };
 
 // Export the images object

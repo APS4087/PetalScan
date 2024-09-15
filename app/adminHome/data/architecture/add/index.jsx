@@ -31,7 +31,7 @@ function AddDatabase({ navigation }) {
       <ScrollView style={styles.content}>
 
         {/* Back Button */}
-        <TouchableOpacity onPress={() => router.push('/adminHome/database')} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.push('/adminHome/data')} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={28} color="black" />
         </TouchableOpacity>
 

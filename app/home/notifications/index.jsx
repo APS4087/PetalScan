@@ -1,21 +1,22 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
+import images from '../../../components/data';
 
-export default function NotificationScreen() {
+export default function Notifications() {
   const router = useRouter();
 
   // Handler for notification click
   const handleNotificationClick = () => {
     // Navigate directly to the NotificationDetailScreen in the insideNotification folder
-    router.push('/notification/insideNotification');
+    router.push('/home/notifications/notification');
   };
 
   return (
     <ScrollView style={styles.container}>
       {/* Back button to navigate to the previous screen */}
       <TouchableOpacity style={styles.logo} onPress={() => router.push('/auth')}>
-        <Image source={require('../../assets/Icons/backArrow.png')} style={styles.arrow} />
+        <Image source={images.backArrowIcon} style={styles.arrow} />
       </TouchableOpacity>
 
       <View style={styles.notificationContainer}>
@@ -33,7 +34,7 @@ export default function NotificationScreen() {
             <View style={styles.innerContainer}>
               <Text style={styles.innerTitle}>Closed until September</Text>
               <Image
-                source={require('../../assets/images/parkImage.jpg')} // Using local image
+                source={images.parkImage} // Using local image
                 style={styles.innerImage}
               />
             </View>
@@ -56,7 +57,7 @@ export default function NotificationScreen() {
             <View style={styles.oldContainer}>
               <Text style={styles.innerTitle}>Closed until September</Text>
               <Image
-                source={require('../../assets/images/parkImage.jpg')} // Using local image
+                source={images.parkImage2} // Using local image
                 style={styles.innerImage}
               />
             </View>
