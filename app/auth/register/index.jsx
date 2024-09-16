@@ -33,14 +33,22 @@ export default function RegisterScreen() {
       // Send email verification
       await sendEmailVerification(user);
 
-      // Save user data to Firestore
+      // Save user data to user db
       console.log('Saving user data to Firestore...');
       await setDoc(doc(db, 'users', user.uid), {
         username,
         email,
+        userType: 'normal', // by default, set user type to normal
         createdAt: new Date().toISOString()
       });
       console.log('User data saved to Firestore.');
+
+      // save user data to normal user type db
+      await setDoc(doc(db, 'normalUsers', user.uid), {
+        uid: user.uid,  
+        createdAt: new Date().toISOString()
+      });
+
 
       // Show success message and redirect to login screen
       alert('Registration successful! Please verify your email.');

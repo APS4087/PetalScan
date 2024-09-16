@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { auth } from '../../../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { getCustomErrorMessage } from '../../../utils/authUtils';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '../../../firebaseConfig';
 
 export default function LoginScreen() {
   // Initialize the router
@@ -14,21 +16,53 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // function to handle user login
+    // function to handle user login
   const handleLogin = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+      console.log(user);
+  
+      // Await the result of getUserData
+      //const userData = await getUserData(user);
+  
+  
       if (user.emailVerified) {
-        router.push('/home');
+        if (userData.userType === 'normal') {
+          router.push('/home');
+        } else if (userData.userType === 'admin') {
+          router.push('/adminHome');
+        }
       } else {
         setErrorMessage('Please verify your email address.');
         await auth.signOut();
       }
     } catch (error) {
+      console.error('Error signing in:', error);
       setErrorMessage(getCustomErrorMessage(error));
     }
+  };
+  
+  const getUserData = async (user) => {
+    // Get user data from Firestore
+    if (user) {
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+  
+          return {
+            ...user,
+            username: userData.username,
+            userType: userData.userType,
+          };
+        }
+      } catch (error) {
+        console.error('Error getting user data:', error);
+      }
+    }
+    return null;
   };
 
   return (

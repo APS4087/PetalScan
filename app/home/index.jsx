@@ -34,23 +34,23 @@ function HomeScreen() {
           <TouchableOpacity style={styles.categoryButton} onPress={() => router.push('/home/architecture')}>
             <Text style={styles.categoryText}>Architecture</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.categoryButton} onPress={() => handleNavigation('/flower/flower')}>
+          <TouchableOpacity style={styles.categoryButton} onPress={() => router.push('/home/architecture')}>
             <Text style={styles.categoryText}>Flower</Text>
           </TouchableOpacity>
         </View>
 
         {/* Image Cards */}
-        <TouchableOpacity style={styles.card} onPress={() => handleNavigation('/architecture/architecture')}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/home/architecture')}>
           <Image source={images.parkImage} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 1</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card} onPress={() => handleNavigation('/architecture/architecture')}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/home/architecture')}>
           <Image source={images.parkImage2} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 2</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card} onPress={() => handleNavigation('/architecture/architecture')}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/home/architecture')}>
           <Image source={images.parkImage3} style={styles.cardImage} />
           <Text style={styles.cardText}>PLACE 3</Text>
         </TouchableOpacity>
