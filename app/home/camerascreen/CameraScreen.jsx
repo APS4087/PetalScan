@@ -1,54 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { SafeAreaView, View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Camera,  CameraType } from 'expo-camera/legacy';
 
-
-const CameraScreen = ({ navigation }) => {
-  const [hasPermission, setHasPermission] = useState(null);
-  const [cameraRef, setCameraRef] = useState(null);
-  const [photoUri, setPhotoUri] = useState(null);
+export default function CameraScreen() {
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
+  const cameraRef = useRef(null);
 
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
-      await MediaLibrary.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+      setHasCameraPermission(status === 'granted');
     })();
   }, []);
 
   const takePicture = async () => {
-    if (cameraRef) {
-      const photo = await cameraRef.takePictureAsync();
-      setPhotoUri(photo.uri);  // Save the photo URI
-      // Optionally save it to the media library:
-      await MediaLibrary.createAssetAsync(photo.uri);
+    if (cameraRef.current) {
+      try {
+        const { uri } = await cameraRef.current.takePictureAsync();
+        console.log('Picture taken:', uri);
+      } catch (error) {
+        console.error('Error taking picture:', error);
+      }
     }
   };
 
-  if (hasPermission === null) {
-    return <View><Text>Requesting camera permission...</Text></View>;
-  }
-  if (hasPermission === false) {
-    return <View><Text>No access to camera</Text></View>;
-  }
-
   return (
-    <View style={{ flex: 1 }}>
-      <Camera style={{ flex: 1 }} ref={setCameraRef}>
-        {/* You can add overlay controls here */}
-      </Camera>
-      <Button title="Capture" onPress={takePicture} />
-      {photoUri && (
-        <Image
-          source={{ uri: photoUri }}
-          style={{ width: 300, height: 300 }}
-        />
-      )}
-      <Button
-        title="Back to Home"
-        onPress={() => navigation.navigate('Home')}
-      />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.cameraContainer}>
+        {hasCameraPermission === null ? (
+          <Text>Waiting for camera permission...</Text>
+        ) : hasCameraPermission === false ? (
+          <Text>Camera permission denied.</Text>
+        ) : (
+          <Camera
+            style={styles.camera}
+            type={Camera.Constants.Type.back}
+            ref={cameraRef}
+          />
+        )}
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.iconButton} onPress={takePicture}>
+          <Image source={require('../../../assets/Icons/capimage.png')} style={styles.icon} />
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
-};
+}
 
-export default CameraScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  cameraContainer: {
+    flex: 1,
+  },
+  camera: {
+    flex: 1,
+  },
+  buttonContainer: {
+    flex: 0.1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  iconButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  icon: {
+    width: 70,
+    height: 70,
+  },
+});

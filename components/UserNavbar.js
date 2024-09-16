@@ -31,7 +31,7 @@ function UserNavbar() {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.iconButton}
-        onPress={() => router.push("/home/CameraScreen")}
+        onPress={() => router.push("/home/camerascreen/CameraScreen")}
       >
         <Image source={images.scanIcon} style={styles.icon} />
       </TouchableOpacity>
