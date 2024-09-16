@@ -21,10 +21,10 @@ export default function LoginScreen() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log(user);
+      //console.log(user);
   
       // Await the result of getUserData
-      //const userData = await getUserData(user);
+      const userData = await getUserData(user);
   
   
       if (user.emailVerified) {
