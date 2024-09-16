@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "PentalScan",
+    "name": "PetalScan",
     "slug": "petalscan",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "PentalScan",
+    "scheme": "PetalScan",
     "permissions": [
       "CAMERA",
       "CAMERA_ROLL"
