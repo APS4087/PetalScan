@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
+import images from '../../../components/data';
 
 const ArchitectureDetail = () => {
   const router = useRouter();
@@ -41,6 +42,10 @@ const ArchitectureDetail = () => {
 
   return (
     <View style={styles.container}>
+      {/* Back button */}
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()} accessibilityLabel="Go back">
+        <Image source={images.backArrowIcon} style={styles.arrow} />
+      </TouchableOpacity>
       {architecture && (
         <>
           <Image source={{ uri: architecture.imageUrl }} style={styles.image} />
@@ -58,10 +63,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 16,
   },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 1,
+  },
+  arrow: {
+    width: 25,
+    height: 25,
+  },
   image: {
     width: '100%',
     height: 200,
     borderRadius: 10,
+    marginTop: 70,
     marginBottom: 20,
   },
   title: {

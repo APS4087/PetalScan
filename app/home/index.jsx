@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 import { ScrollView } from 'react-native';
 import { Image } from 'react-native';
 import UserNavbar from '../../components/UserNavbar';
@@ -8,6 +8,8 @@ import images from '../../components/data';
 import { useAuth } from '../../context/authContext';
 import { getDocs, collection } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
+
+const { width, height } = Dimensions.get('window');
 
 function HomeScreen() {
   const router = useRouter();
@@ -45,7 +47,7 @@ function HomeScreen() {
   if (error) {
     return <Text style={styles.errorText}>{error}</Text>;
   }
-  //console.log(architectures)
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
@@ -139,6 +141,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 20,
     marginRight: 10,
+    flex: 1,
+    alignItems: 'center',
   },
   categoryText: {
     fontSize: 16,
@@ -147,10 +151,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 10,
     overflow: 'hidden',
+    width: '100%',
   },
   cardImage: {
     width: '100%',
-    height: 200,
+    height: width * 0.5, // 50% of screen width
     borderRadius: 10,
   },
   cardText: {

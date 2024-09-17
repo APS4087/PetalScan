@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from "react-native";
 import images from "../../../components/data";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../../context/authContext";
 import { auth } from "../../../firebaseConfig";
+
+const { width, height } = Dimensions.get('window');
 
 const ProfilePage = ({ navigation }) => {
   const router = useRouter();
@@ -17,11 +19,11 @@ const ProfilePage = ({ navigation }) => {
   }, [user]);
 
   const handleLogout = async () => {
-    try{
-        await auth.signOut(auth);
-        router.push('/auth');
-    }catch(error){
-        console.log('Error at handleLogout', error);
+    try {
+      await auth.signOut(auth);
+      router.push('/auth');
+    } catch (error) {
+      console.log('Error at handleLogout', error);
     }
   }
 
@@ -65,68 +67,69 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 50,
+    paddingTop: height * 0.05,
+    paddingHorizontal: width * 0.05,
   },
   logo: {
     position: 'absolute',
-    top: 40,
-    left: 20,
+    top: height * 0.05,
+    left: width * 0.05,
   },
   arrow: {
-    width: 25,
-    height: 25,
+    width: width * 0.07,
+    height: width * 0.07,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginTop: 20,
+    width: width * 0.3,
+    height: width * 0.3,
+    borderRadius: (width * 0.3) / 2,
+    marginTop: height * 0.02,
     alignSelf: 'center',
     borderWidth: 2,
     borderColor: '#fff',
   },
   title: {
-    fontSize: 34,
+    fontSize: width * 0.09,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 50,
+    marginTop: height * 0.05,
   },
   username: {
-    fontSize: 22,
+    fontSize: width * 0.06,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: height * 0.01,
     textAlign: 'center',
   },
   email: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: 'gray',
-    marginBottom: 20,
+    marginBottom: height * 0.02,
     textAlign: 'center',
   },
   optionButton: {
-    width: '85%',
-    padding: 15,
+    width: '90%',
+    padding: height * 0.02,
     borderRadius: 10,
     backgroundColor: '#f0f0f0',
-    marginTop: 10,
+    marginTop: height * 0.01,
     alignSelf: 'center',
     alignItems: 'center',
   },
   optionText: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     color: '#000',
   },
   deleteButton: {
-    width: '85%',
-    padding: 15,
+    width: '90%',
+    padding: height * 0.02,
     borderRadius: 10,
     backgroundColor: '#8B0000',
-    marginTop: 30,
+    marginTop: height * 0.03,
     alignSelf: 'center',
     alignItems: 'center',
   },
   deleteText: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     color: '#fff',
   },
 });
