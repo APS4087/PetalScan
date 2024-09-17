@@ -16,9 +16,11 @@ function HomeScreen() {
 
   // Get the user from the AuthContext
   const { user } = useAuth();
-  const [architectures, setArchitectures] = useState([]); 
+  const [architectures, setArchitectures] = useState([]);
+  const [flowers, setFlowers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('Architecture'); // Default category
 
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -30,6 +32,14 @@ function HomeScreen() {
           ...doc.data()
         }));
         setArchitectures(architecturesList);
+
+        const flowersCollection = collection(db, 'flowers');
+        const flowersSnapshot = await getDocs(flowersCollection);
+        const flowersList = flowersSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setFlowers(flowersList);
       } catch (error) {
         setError('Failed to load places.');
       } finally {
@@ -47,6 +57,8 @@ function HomeScreen() {
   if (error) {
     return <Text style={styles.errorText}>{error}</Text>;
   }
+
+  const places = selectedCategory === 'Architecture' ? architectures : flowers;
 
   return (
     <View style={styles.container}>
@@ -69,20 +81,26 @@ function HomeScreen() {
 
         {/* Categories */}
         <View style={styles.categories}>
-          <TouchableOpacity style={styles.categoryButton} onPress={() => router.push('/home/architecture')}>
+          <TouchableOpacity
+            style={[styles.categoryButton, selectedCategory === 'Architecture' && styles.selectedCategoryButton]}
+            onPress={() => setSelectedCategory('Architecture')}
+          >
             <Text style={styles.categoryText}>Architecture</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.categoryButton} onPress={() => router.push('/home/architecture')}>
+          <TouchableOpacity
+            style={[styles.categoryButton, selectedCategory === 'Flower' && styles.selectedCategoryButton]}
+            onPress={() => setSelectedCategory('Flower')}
+          >
             <Text style={styles.categoryText}>Flower</Text>
           </TouchableOpacity>
         </View>
 
         {/* Image Cards */}
-        {architectures.map(place => (
+        {places.map(place => (
           <TouchableOpacity
             key={place.id}
             style={styles.card}
-            onPress={() => router.push(`/home/architecture/${place.id}`)}
+            onPress={() => router.push(`/home/${selectedCategory.toLowerCase()}/${place.id}`)}
           >
             <Image source={{ uri: place.imageUrl }} style={styles.cardImage} />
             <Text style={styles.cardText}>{place.name}</Text>
@@ -143,6 +161,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
     flex: 1,
     alignItems: 'center',
+  },
+  selectedCategoryButton: {
+    backgroundColor: '#d0d0d0',
   },
   categoryText: {
     fontSize: 16,
