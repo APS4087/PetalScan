@@ -38,7 +38,12 @@ function UserNavbar() {
       <TouchableOpacity style={styles.iconButton} onPress={openMaps}>
         <Image source={images.mapsIcon} style={styles.icon} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.iconButton}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={() => {
+          router.push("/home/profile");
+        }}
+      >
         <Image source={images.profileIcon} style={styles.icon} />
       </TouchableOpacity>
     </View>
