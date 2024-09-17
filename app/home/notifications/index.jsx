@@ -15,7 +15,7 @@ export default function Notifications() {
   return (
     <ScrollView style={styles.container}>
       {/* Back button to navigate to the previous screen */}
-      <TouchableOpacity style={styles.logo} onPress={() => router.push('/auth')}>
+      <TouchableOpacity style={styles.logo} onPress={() => router.back()}>
         <Image source={images.backArrowIcon} style={styles.arrow} />
       </TouchableOpacity>
 

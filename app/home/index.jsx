@@ -1,26 +1,58 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native';
 import { Image } from 'react-native';
 import UserNavbar from '../../components/UserNavbar';
 import { useRouter } from 'expo-router';
 import images from '../../components/data';
 import { useAuth } from '../../context/authContext';
+import { getDocs, collection } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
 
 function HomeScreen() {
   const router = useRouter();
 
   // Get the user from the AuthContext
   const { user } = useAuth();
+  const [architectures, setArchitectures] = useState([]); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const architecturesCollection = collection(db, 'architectures');
+        const architecturesSnapshot = await getDocs(architecturesCollection);
+        const architecturesList = architecturesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setArchitectures(architecturesList);
+      } catch (error) {
+        setError('Failed to load places.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchPlaces();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />;
+  }
+
+  if (error) {
+    return <Text style={styles.errorText}>{error}</Text>;
+  }
+  //console.log(architectures)
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
         {/* Header Section */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello, {user?user.username: 'Guest'}</Text>
-          <TouchableOpacity onPress={()=>router.push("/home/notifications")}>
+          <Text style={styles.greeting}>Hello, {user ? user.username : 'Guest'}</Text>
+          <TouchableOpacity onPress={() => router.push("/home/notifications")}>
             <Image source={images.notifcationIcon} style={styles.icon} />
           </TouchableOpacity>
         </View>
@@ -44,20 +76,16 @@ function HomeScreen() {
         </View>
 
         {/* Image Cards */}
-        <TouchableOpacity style={styles.card} onPress={() => router.push('/home/architecture')}>
-          <Image source={images.parkImage} style={styles.cardImage} />
-          <Text style={styles.cardText}>PLACE 1</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.card} onPress={() => router.push('/home/architecture')}>
-          <Image source={images.parkImage2} style={styles.cardImage} />
-          <Text style={styles.cardText}>PLACE 2</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.card} onPress={() => router.push('/home/architecture')}>
-          <Image source={images.parkImage3} style={styles.cardImage} />
-          <Text style={styles.cardText}>PLACE 3</Text>
-        </TouchableOpacity>
+        {architectures.map(place => (
+          <TouchableOpacity
+            key={place.id}
+            style={styles.card}
+            onPress={() => router.push(`/home/architecture/${place.id}`)}
+          >
+            <Image source={{ uri: place.imageUrl }} style={styles.cardImage} />
+            <Text style={styles.cardText}>{place.name}</Text>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
       {/* Navigation Bar at the Bottom */}
       <UserNavbar />
@@ -67,10 +95,10 @@ function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { 
-      flex: 1,
-      backgroundColor: '#ffffff',
-      padding: 16,
-    },
+    flex: 1,
+    backgroundColor: '#ffffff',
+    padding: 16,
+  },
   content: {
     flex: 1,
   },
@@ -132,6 +160,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  loadingIndicator: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  errorText: {
+    textAlign: 'center',
+    color: 'red',
+    fontSize: 16,
   },
 });
 
