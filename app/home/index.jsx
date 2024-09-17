@@ -5,9 +5,13 @@ import { Image } from 'react-native';
 import UserNavbar from '../../components/UserNavbar';
 import { useRouter } from 'expo-router';
 import images from '../../components/data';
+import { useAuth } from '../../context/authContext';
 
 function HomeScreen() {
   const router = useRouter();
+
+  // Get the user from the AuthContext
+  const { user } = useAuth();
 
 
   return (
@@ -15,7 +19,7 @@ function HomeScreen() {
       <ScrollView style={styles.content}>
         {/* Header Section */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello, User</Text>
+          <Text style={styles.greeting}>Hello, {user?user.username: 'Guest'}</Text>
           <TouchableOpacity onPress={()=>router.push("/home/notifications")}>
             <Image source={images.notifcationIcon} style={styles.icon} />
           </TouchableOpacity>

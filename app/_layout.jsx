@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
+import { AuthProvider } from '../context/authContext';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -14,5 +15,9 @@ export default function RootLayout() {
     return null;
   }
 
-  return <Slot />;
+  return (
+    <AuthProvider>
+      <Slot />
+    </AuthProvider>
+  );
 }

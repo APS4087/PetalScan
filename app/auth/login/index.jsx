@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { auth } from '../../../firebaseConfig';
@@ -6,28 +6,33 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { getCustomErrorMessage } from '../../../utils/authUtils';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
+import { useAuth } from '../../../context/authContext';
 
 export default function LoginScreen() {
   // Initialize the router
   const router = useRouter();
+  const { setUser } = useAuth(); // Consume the context
 
   // Initialize the state variables
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Loading state
 
-    // function to handle user login
   const handleLogin = async () => {
+    setIsLoading(true); // Start loading
+    setErrorMessage(''); // Clear previous error message
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      //console.log("User signed in: ", userCredential); // Log success
       const user = userCredential.user;
-      //console.log(user);
-  
+
       // Await the result of getUserData
       const userData = await getUserData(user);
-  
-  
+      //console.log("User data: ", userData); // Log user data
+
       if (user.emailVerified) {
+        setUser(userData); // Set the user in context
         if (userData.userType === 'normal') {
           router.push('/home');
         } else if (userData.userType === 'admin') {
@@ -39,10 +44,16 @@ export default function LoginScreen() {
       }
     } catch (error) {
       console.error('Error signing in:', error);
-      setErrorMessage(getCustomErrorMessage(error));
+      if (error.code === 'auth/network-request-failed') {
+        setErrorMessage('Network error. Please check your internet connection and try again.');
+      } else {
+        setErrorMessage(getCustomErrorMessage(error));
+      }
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
-  
+
   const getUserData = async (user) => {
     // Get user data from Firestore
     if (user) {
@@ -51,12 +62,15 @@ export default function LoginScreen() {
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data();
-  
+          console.log("Fetched user data from Firestore: ", userData); // Log fetched data
+
           return {
             ...user,
             username: userData.username,
             userType: userData.userType,
           };
+        } else {
+          console.error('No such document!');
         }
       } catch (error) {
         console.error('Error getting user data:', error);
@@ -78,27 +92,36 @@ export default function LoginScreen() {
           </TouchableOpacity>
           <Text style={styles.title}>Sign in to your Account</Text>
           {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TouchableOpacity style={styles.forgotPasswordButton}>
-            <Text style={styles.forgotPasswordButtonText}>Forgot Password?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
+          
+          {/* Show loading spinner if isLoading is true */}
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
+          ) : (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your password"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity style={styles.forgotPasswordButton}>
+                <Text style={styles.forgotPasswordButtonText}>Forgot Password?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                <Text style={styles.loginButtonText}>Login</Text>
+              </TouchableOpacity>
+            </>
+          )}
+          
           <TouchableOpacity style={styles.registerLinkButton} onPress={() => router.push('/auth/register')}>
             <Text style={styles.dontHaveAccountText}>Don't have an account?
               <Text style={styles.registerLinkButtonText}> Register</Text>
@@ -125,7 +148,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-  
   },
   logo: {
     position: 'absolute',
@@ -140,7 +162,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 35,
     fontWeight: 'bold',
-    //textAlign: 'center',
     marginBottom: 80,
   },
   errorText: {
@@ -187,5 +208,8 @@ const styles = StyleSheet.create({
     color: '#0000EE',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  loadingIndicator: {
+    marginVertical: 30,
   },
 });
