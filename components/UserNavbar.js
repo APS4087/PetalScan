@@ -12,14 +12,14 @@ const Stack = createStackNavigator();
 function UserNavbar() {
   const router = useRouter();
 
-  // Function to open Google Maps with current location search
   const openMaps = () => {
     const url =
-      "https://www.google.com/maps/search/?api=1&query=Current+Location";
+      "https://www.google.com/maps/@1.3138,103.8159,15z"; // Coordinates of Singapore Botanic Gardens
     Linking.openURL(url).catch((err) =>
       console.error("An error occurred", err)
     );
   };
+  
 
   return (
     <View style={styles.navbar}>
