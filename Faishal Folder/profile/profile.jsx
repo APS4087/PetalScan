@@ -42,7 +42,7 @@ export default function Profile() {
           <Ionicons name="chevron-forward" size={24} color="#6e6e6e" />
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.option}>
+        <TouchableOpacity style={styles.option} >
           <View style={styles.optionContent}>
             <View style={styles.iconCircle}>
               <Ionicons name="log-out-outline" size={24} color="#0601B4" />
