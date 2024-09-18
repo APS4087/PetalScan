@@ -13,13 +13,11 @@ function UserNavbar() {
   const router = useRouter();
 
   const openMaps = () => {
-    const url =
-      "https://www.google.com/maps/@1.3138,103.8159,15z"; // Coordinates of Singapore Botanic Gardens
+    const url = "https://www.google.com/maps/@1.3138,103.8159,15z"; // Coordinates of Singapore Botanic Gardens
     Linking.openURL(url).catch((err) =>
       console.error("An error occurred", err)
     );
   };
-  
 
   return (
     <View style={styles.navbar}>
@@ -31,7 +29,7 @@ function UserNavbar() {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.iconButton}
-        onPress={() => router.push("/home/camerascreen/CameraScreen")}
+        onPress={() => router.push("/home/camerascreen")}
       >
         <Image source={images.scanIcon} style={styles.icon} />
       </TouchableOpacity>
