@@ -48,7 +48,7 @@ const ProfilePage = ({ navigation }) => {
       <Text style={styles.email}>{user?.email || 'Loading...'}</Text>
 
       {/* Profile Options */}
-     <View style={styles.optionsContainer}>
+      <View style={styles.optionsContainer}>
         <TouchableOpacity style={styles.option}>
           <View style={styles.optionContent}>
             <View style={styles.iconCircle}>
@@ -122,37 +122,41 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   optionsContainer: {
-    marginBottom: 30,
+    marginBottom: height * 0.03,
   },
   option: {
     backgroundColor: '#f9f9f9',
-    padding: 15,
+    padding: width * 0.04,
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: height * 0.01,
   },
   optionContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    //borderWidth: 1,
+    width: '80%',
+    justifyContent: 'flex-start',
   },
   iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: width * 0.09,
+    height: width * 0.09,
+    borderRadius: (width * 0.09) / 2,
     backgroundColor: '#E0E0E0',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: width * 0.03,
   },
   optionText: {
-    fontSize: 16,
+    fontSize: width * 0.04,
+    width: '80%',
     color: '#000',
   },
   deleteButton: {
     width: '90%',
-    padding: height * 0.02,
+    padding: height * 0.015,
     borderRadius: 10,
     backgroundColor: '#8B0000',
     marginTop: height * 0.03,
@@ -161,6 +165,7 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: width * 0.045,
+    width: '54%',
     color: '#fff',
   },
 });
