@@ -1,6 +1,6 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { Image } from "react-native";
 import { Button, View, Text, Linking } from "react-native";
@@ -8,6 +8,7 @@ import { useRouter } from "expo-router";
 import images from "./data";
 
 const Stack = createStackNavigator();
+const { width } = Dimensions.get("window");
 
 function UserNavbar() {
   const router = useRouter();
@@ -21,20 +22,32 @@ function UserNavbar() {
 
   return (
     <View style={styles.navbar}>
-      <TouchableOpacity style={styles.iconButton}>
-        <Image source={images.homeIcon} style={styles.icon} />
+      <TouchableOpacity>
+        <View style={styles.navItem}>
+          <Image source={images.homeIcon} style={styles.icon} />
+          <Text style={styles.label}>Home</Text>
+        </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.iconButton}>
-        <Image source={images.searchIcon} style={styles.icon} />
+        <View style={styles.navItem}>
+          <Image source={images.searchIcon} style={styles.icon} />
+          <Text style={styles.label}>Search</Text>
+        </View>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.iconButton}
         onPress={() => router.push("/home/camerascreen")}
       >
-        <Image source={images.scanIcon} style={styles.icon} />
+        <View style={styles.navItem}>
+          <Image source={images.scanIcon} style={styles.icon} />
+          <Text style={styles.label}>Scan</Text>
+        </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.iconButton} onPress={openMaps}>
-        <Image source={images.mapsIcon} style={styles.icon} />
+        <View style={styles.navItem}>
+          <Image source={images.mapsIcon} style={styles.icon} />
+          <Text style={styles.label}>maps</Text>
+        </View>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.iconButton}
@@ -42,7 +55,10 @@ function UserNavbar() {
           router.push("/home/profile");
         }}
       >
-        <Image source={images.profileIcon} style={styles.icon} />
+        <View style={styles.navItem}>
+          <Image source={images.profileIcon} style={styles.icon} />
+          <Text style={styles.label}>Profile</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -52,17 +68,28 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    padding: 10,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#1c1c1c", // Dark background color like in the screenshot
+    paddingVertical: 10,
     borderTopWidth: 1,
-    borderColor: "#e7e7e7",
+    borderTopColor: "#e0e0e0",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    width: width,
   },
-  iconButton: {
+  navItem: {
     alignItems: "center",
   },
   icon: {
-    width: 28,
-    height: 28,
+    width: 24, // Size of the icons
+    height: 24,
+    tintColor: "#676D75", // White icon color to match the screenshot
+  },
+  label: {
+    marginTop: 5,
+    fontSize: 12,
+    color: "#ffffff", // White text color to match the screenshot
   },
 });
 

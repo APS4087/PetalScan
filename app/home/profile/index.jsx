@@ -28,10 +28,12 @@ const ProfilePage = ({ navigation }) => {
     }
   }
 
+
+
   return (
     <ScrollView style={styles.container}>
       {/* Back button */}
-      <TouchableOpacity style={styles.logo} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.logo} onPress={() => router.push('/home')}>
         <Image source={images.backArrowIcon} style={styles.arrow} />
       </TouchableOpacity>
 
@@ -49,7 +51,7 @@ const ProfilePage = ({ navigation }) => {
 
       {/* Profile Options */}
       <View style={styles.optionsContainer}>
-        <TouchableOpacity style={styles.option}>
+        <TouchableOpacity style={styles.option} onPress={() => router.push('/home/profile/updateProfile')}>
           <View style={styles.optionContent}>
             <View style={styles.iconCircle}>
               <Ionicons name="person-outline" size={24} color="#0601B4" />

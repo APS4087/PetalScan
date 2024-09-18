@@ -117,7 +117,9 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1,
     backgroundColor: '#ffffff',
-    padding: 16,
+    padding: width * 0.04,
+    paddingTop: height * 0.05, // Add padding to the top
+    paddingBottom: height * 0.08, // Add padding to the bottom
   },
   content: {
     flex: 1,
@@ -126,39 +128,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: height * 0.02,
   },
   greeting: {
-    fontSize: 24,
+    fontSize: width * 0.065,
     fontWeight: 'bold',
   },
   icon: {
-    width: 28,
-    height: 28,
+    width: width * 0.07,
+    height: width * 0.07,
   },
   recommended: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: height * 0.02,
   },
   recommendedTitle: {
-    fontSize: 20,
+    fontSize: width * 0.045,
     fontWeight: 'bold',
   },
   seeAll: {
-    fontSize: 16,
+    fontSize: width * 0.035,
+    marginRight: width * 0.02,
+    width: width * 0.2,
+    textAlign: 'right',
+  
     color: 'blue',
   },
   categories: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: height * 0.02,
   },
   categoryButton: {
     backgroundColor: '#f0f0f0',
-    padding: 10,
+    paddingVertical: height * 0.015,
+    paddingHorizontal: width * 0.04,
     borderRadius: 20,
-    marginRight: 10,
+    marginRight: width * 0.02,
     flex: 1,
     alignItems: 'center',
   },
@@ -166,10 +173,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#d0d0d0',
   },
   categoryText: {
-    fontSize: 16,
+    fontSize: width * 0.035,
+    textAlign: 'center',
+   // borderWidth: 1,
+    width: width * 0.4,
+  
   },
   card: {
-    marginBottom: 20,
+    marginBottom: height * 0.02,
     borderRadius: 10,
     overflow: 'hidden',
     width: '100%',
@@ -181,11 +192,11 @@ const styles = StyleSheet.create({
   },
   cardText: {
     position: 'absolute',
-    bottom: 10,
-    left: 10,
+    bottom: height * 0.01,
+    left: width * 0.03,
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: width * 0.045,
   },
   loadingIndicator: {
     flex: 1,
@@ -194,7 +205,7 @@ const styles = StyleSheet.create({
   errorText: {
     textAlign: 'center',
     color: 'red',
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
 });
 

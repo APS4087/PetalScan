@@ -1,7 +1,22 @@
 import * as React from 'react';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
-import { AuthProvider } from '../context/authContext';
+import { AuthProvider, useAuth } from '../context/authContext';
+import { View, ActivityIndicator } from 'react-native';
+
+function AppContent() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -17,7 +32,7 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <Slot />
+      <AppContent />
     </AuthProvider>
   );
 }
