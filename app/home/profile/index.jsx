@@ -4,6 +4,7 @@ import images from "../../../components/data";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../../context/authContext";
 import { auth } from "../../../firebaseConfig";
+import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -47,13 +48,27 @@ const ProfilePage = ({ navigation }) => {
       <Text style={styles.email}>{user?.email || 'Loading...'}</Text>
 
       {/* Profile Options */}
-      <TouchableOpacity style={styles.optionButton}>
-        <Text style={styles.optionText}>Your profile</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.optionButton} onPress={handleLogout}>
-        <Text style={styles.optionText}>Log out</Text>
-      </TouchableOpacity>
+     <View style={styles.optionsContainer}>
+        <TouchableOpacity style={styles.option}>
+          <View style={styles.optionContent}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="person-outline" size={24} color="#0601B4" />
+            </View>
+            <Text style={styles.optionText}>Your profile</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color="#6e6e6e" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.option} onPress={handleLogout}>
+          <View style={styles.optionContent}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="log-out-outline" size={24} color="#0601B4" />
+            </View>
+            <Text style={styles.optionText}>Log out</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color="#6e6e6e" />
+        </TouchableOpacity>
+      </View>
 
       {/* Delete Account Button */}
       <TouchableOpacity style={styles.deleteButton}>
@@ -72,8 +87,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    top: height * 0.05,
-    left: width * 0.05,
+    top: height * 0.03,
+    left: width * 0.03,
   },
   arrow: {
     width: width * 0.07,
@@ -89,10 +104,10 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
   },
   title: {
-    fontSize: width * 0.09,
+    fontSize: width * 0.07,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: height * 0.05,
+    marginTop: height * 0.09,
   },
   username: {
     fontSize: width * 0.06,
@@ -106,17 +121,33 @@ const styles = StyleSheet.create({
     marginBottom: height * 0.02,
     textAlign: 'center',
   },
-  optionButton: {
-    width: '90%',
-    padding: height * 0.02,
+  optionsContainer: {
+    marginBottom: 30,
+  },
+  option: {
+    backgroundColor: '#f9f9f9',
+    padding: 15,
     borderRadius: 10,
-    backgroundColor: '#f0f0f0',
-    marginTop: height * 0.01,
-    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  optionContent: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
   optionText: {
-    fontSize: width * 0.045,
+    fontSize: 16,
     color: '#000',
   },
   deleteButton: {
