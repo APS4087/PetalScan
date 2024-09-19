@@ -16,10 +16,7 @@ function AdminNavbar({ navigation }) {
 
       <TouchableOpacity onPress={() => router.push("/adminHome/data")}>
         <View style={styles.navItem}>
-          <Image
-            source={images.mapsIcon} // Replace with actual icon
-            style={styles.icon}
-          />
+          <Image source={images.mapsIcon} style={styles.icon} />
           <Text style={styles.label}>Data</Text>
         </View>
       </TouchableOpacity>
@@ -45,7 +42,7 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#1c1c1c", // Dark background color like in the screenshot
+    backgroundColor: "#1c1c1c",
     paddingVertical: 20,
     borderTopWidth: 1,
     borderTopColor: "#e0e0e0",
@@ -56,12 +53,12 @@ const styles = StyleSheet.create({
   icon: {
     width: 24, // Size of the icons
     height: 24,
-    tintColor: "#676D75", // White icon color to match the screenshot
+    tintColor: "#676D75",
   },
   label: {
     marginTop: 5,
     fontSize: 12,
-    color: "#ffffff", // White text color to match the screenshot
+    color: "#ffffff",
   },
 });
 

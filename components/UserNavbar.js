@@ -8,7 +8,7 @@ import { useRouter } from "expo-router";
 import images from "./data";
 
 const Stack = createStackNavigator();
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 function UserNavbar() {
   const router = useRouter();
@@ -46,7 +46,7 @@ function UserNavbar() {
       <TouchableOpacity style={styles.iconButton} onPress={openMaps}>
         <View style={styles.navItem}>
           <Image source={images.mapsIcon} style={styles.icon} />
-          <Text style={styles.label}>maps</Text>
+          <Text style={styles.label}>Maps</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity
@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#1c1c1c", // Dark background color like in the screenshot
-    paddingVertical: 10,
+    backgroundColor: "#1c1c1c",
+    paddingVertical: height * 0.015, // Responsive vertical padding
     borderTopWidth: 1,
     borderTopColor: "#e0e0e0",
     position: "absolute",
@@ -82,14 +82,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   icon: {
-    width: 24, // Size of the icons
-    height: 24,
-    tintColor: "#676D75", // White icon color to match the screenshot
+    width: width * 0.06, // Responsive icon size
+    height: width * 0.06,
+    tintColor: "#676D75", // Grey icon color
   },
   label: {
-    marginTop: 5,
-    fontSize: 12,
-    color: "#ffffff", // White text color to match the screenshot
+    borderWidth: 1,
+    borderColor: "#1c1c1c",
+    marginTop: height * 0.005, // Responsive margin top
+    fontSize: width * 0.03, // Responsive font size
+    color: "#ffffff",
   },
 });
 
