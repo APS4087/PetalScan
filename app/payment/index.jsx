@@ -1,5 +1,10 @@
+import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import images from '../../components/data';
+
+
+const { width, height } = Dimensions.get('window');
 
 export default function PremiumFeatureScreen() {
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -24,9 +29,10 @@ export default function PremiumFeatureScreen() {
 
       {/* Premium Feature Content */}
       <View style={styles.contentContainer}>
-        <TouchableOpacity style={styles.closeButton}>
-          <Text style={styles.closeButtonText}>✕</Text>
-        </TouchableOpacity>
+        {/* Back button */}
+      <TouchableOpacity style={styles.logo} onPress={() => router.push('/home')}>
+        <Image source={images.backArrowIcon} style={styles.arrow} />
+      </TouchableOpacity>
 
         <Text style={styles.title}>PetalScan</Text>
         <Text style={styles.subtitle}>
@@ -88,6 +94,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: height * 0.05,
+  },
+  logo: {
+    position: 'absolute',
+    top: height * 0.03,
+    left: width * 0.03,
+  },
+  arrow: {
+    width: width * 0.07,
+    height: width * 0.07,
   },
   backgroundImage: {
     position: 'absolute',
@@ -104,7 +120,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 0,
     alignItems: 'center',
   },
   closeButton: {

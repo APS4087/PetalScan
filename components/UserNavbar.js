@@ -30,8 +30,8 @@ function UserNavbar() {
       </TouchableOpacity>
       <TouchableOpacity style={styles.iconButton}>
         <View style={styles.navItem}>
-          <Image source={images.searchIcon} style={styles.icon} />
-          <Text style={styles.label}>Search</Text>
+          <Image source={images.notifcationIcon} style={styles.icon} />
+          <Text style={styles.label}>News</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity

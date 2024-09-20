@@ -61,6 +61,7 @@ const ProfilePage = ({ navigation }) => {
           <Ionicons name="chevron-forward" size={24} color="#6e6e6e" />
         </TouchableOpacity>
         
+        
         <TouchableOpacity style={styles.option} onPress={handleLogout}>
           <View style={styles.optionContent}>
             <View style={styles.iconCircle}>
@@ -71,6 +72,10 @@ const ProfilePage = ({ navigation }) => {
           <Ionicons name="chevron-forward" size={24} color="#6e6e6e" />
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.premiumButton} onPress={()=>router.push('/payment')}>
+        <Text style={styles.premiumText}>Upgrade to premium</Text>
+      </TouchableOpacity>
 
       {/* Delete Account Button */}
       <TouchableOpacity style={styles.deleteButton}>
@@ -161,12 +166,26 @@ const styles = StyleSheet.create({
     padding: height * 0.015,
     borderRadius: 10,
     backgroundColor: '#8B0000',
-    marginTop: height * 0.03,
+    marginTop: height * 0.01,
     alignSelf: 'center',
     alignItems: 'center',
   },
   deleteText: {
-    fontSize: width * 0.045,
+    fontSize: width * 0.043,
+    width: '54%',
+    color: '#fff',
+  },
+    premiumButton: {
+    width: '90%',
+    padding: height * 0.015,
+    borderRadius: 10,
+    backgroundColor: 'rgba(191, 191, 36, 0.6)', // 60% opacity
+    marginTop: height * 0.02,
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  premiumText: {
+    fontSize: width * 0.043,
     width: '54%',
     color: '#fff',
   },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, TextInput } from 'react-native';
 import { ScrollView } from 'react-native';
 import { Image } from 'react-native';
 import UserNavbar from '../../components/UserNavbar';
@@ -66,17 +66,21 @@ function HomeScreen() {
         {/* Header Section */}
         <View style={styles.header}>
           <Text style={styles.greeting}>Hello, {user ? user.username : 'Guest'}</Text>
-          <TouchableOpacity onPress={() => router.push("/home/notifications")}>
-            <Image source={images.notifcationIcon} style={styles.icon} />
-          </TouchableOpacity>
         </View>
 
         {/* Recommended Section */}
         <View style={styles.recommended}>
           <Text style={styles.recommendedTitle}>Recommended</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAll}>See all</Text>
-          </TouchableOpacity>
+        </View>
+
+        {/* Search Bar with Icon */}
+        <View style={styles.searchBarContainer}>
+          <Image source={images.searchIcon} style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search"
+            placeholderTextColor="#888"
+          />
         </View>
 
         {/* Categories */}
@@ -129,9 +133,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginVertical: height * 0.02,
+    marginLeft: width * 0.02,
   },
   greeting: {
-    fontSize: width * 0.065,
+    fontSize: width * 0.04,
     fontWeight: 'bold',
   },
   icon: {
@@ -142,10 +147,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginLeft: width * 0.015,
     marginBottom: height * 0.02,
   },
   recommendedTitle: {
-    fontSize: width * 0.045,
+    fontSize: width * 0.06,
     fontWeight: 'bold',
   },
   seeAll: {
@@ -153,7 +159,6 @@ const styles = StyleSheet.create({
     marginRight: width * 0.02,
     width: width * 0.2,
     textAlign: 'right',
-  
     color: 'blue',
   },
   categories: {
@@ -162,7 +167,7 @@ const styles = StyleSheet.create({
   },
   categoryButton: {
     backgroundColor: '#f0f0f0',
-    paddingVertical: height * 0.015,
+    paddingVertical: height * 0.013,
     paddingHorizontal: width * 0.04,
     borderRadius: 20,
     marginRight: width * 0.02,
@@ -175,9 +180,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: width * 0.035,
     textAlign: 'center',
-   // borderWidth: 1,
     width: width * 0.4,
-  
   },
   card: {
     marginBottom: height * 0.02,
@@ -205,6 +208,28 @@ const styles = StyleSheet.create({
   errorText: {
     textAlign: 'center',
     color: 'red',
+    fontSize: width * 0.04,
+  },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F7F8F9',
+    height: height * 0.05, 
+    width: width * 0.9,
+    borderRadius: 20,
+    marginVertical: height * 0.01,
+   // marginHorizontal: width * 0.02,
+    borderColor: '#cccccc',
+    borderWidth: 1,
+  },
+  searchIcon: {
+    width: width * 0.04,
+    height: width * 0.04,
+    marginLeft: width * 0.05,
+  },
+  searchBar: {
+    flex: 1,
+    padding: width * 0.02,
     fontSize: width * 0.04,
   },
 });
