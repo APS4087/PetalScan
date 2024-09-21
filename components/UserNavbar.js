@@ -28,7 +28,10 @@ function UserNavbar() {
           <Text style={styles.label}>Home</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.iconButton}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={() => router.push("home/notification")}
+      >
         <View style={styles.navItem}>
           <Image source={images.notifcationIcon} style={styles.icon} />
           <Text style={styles.label}>News</Text>
