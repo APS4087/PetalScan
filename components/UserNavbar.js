@@ -30,7 +30,7 @@ function UserNavbar() {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.iconButton}
-        onPress={() => router.push("home/notification")}
+        onPress={() => router.push("home/notifications")}
       >
         <View style={styles.navItem}>
           <Image source={images.notifcationIcon} style={styles.icon} />
