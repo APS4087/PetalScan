@@ -1,58 +1,57 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Image, Dimensions, Alert } from 'react-native';
-import { Camera } from 'expo-camera/legacy';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Image, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useNavigation } from '@react-navigation/native';
+import Icon from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
-export default function CameraScreen() {
+export default function CameraScreen() { 
   const router = useRouter();
-  const [hasCameraPermission, setHasCameraPermission] = useState(null);
-  const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [focusDepth, setFocusDepth] = useState(0.5); // Default focus depth for tap-to-focus
-  const [pictureCount, setPictureCount] = useState(3); // Free users can take 3 pictures per day
-  const [pictureLimit] = useState(3); // Total allowed pictures per day
-  const cameraRef = useRef(null);
-  const navigation = useNavigation();
+  const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
+  const [pictureCount, setPictureCount] = useState(3);
+  const [loading, setLoading] = useState(false);
+  const [resultLabel, setResultLabel] = useState(''); // State for the detection result
 
+  // Request permission for media library
   useEffect(() => {
     (async () => {
-      // Request camera permission
-      const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
-      setHasCameraPermission(cameraStatus === 'granted');
-
-      // Request gallery permission
       const { status: galleryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setHasGalleryPermission(galleryStatus === 'granted');
-
-      // Request media library permission
-      const { status: mediaLibraryStatus } = await MediaLibrary.requestPermissionsAsync();
-      setHasGalleryPermission(mediaLibraryStatus === 'granted');
     })();
   }, []);
 
   const takePicture = async () => {
     if (pictureCount > 0) {
-      if (cameraRef.current) {
+      if (hasGalleryPermission) {
         try {
-          const { uri } = await cameraRef.current.takePictureAsync();
-          console.log('Picture taken:', uri);
-          setPictureCount(pictureCount - 1); // Decrease picture count by 1
-          savePictureToGallery(uri); // Save the picture to the gallery
+          let result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+          });
+  
+          console.log(result);  // Check the result structure
+  
+          if (!result.canceled && result.assets && result.assets[0].uri) {
+            setSelectedImage(result.assets[0].uri);
+            setPictureCount(pictureCount - 1); // Decrease picture count by 1
+            savePictureToGallery(result.assets[0].uri); // Save the picture to the gallery
+            handleImageDetection(result.assets[0].uri);  // Perform image detection
+          }
         } catch (error) {
           console.error('Error taking picture:', error);
         }
+      } else {
+        Alert.alert('Permission Denied', 'Camera and gallery permissions are required to take pictures.');
       }
     } else {
       Alert.alert('Limit Reached', 'You have reached your daily limit. Purchase a snaps bundle for more!');
     }
   };
+  
 
   const savePictureToGallery = async (uri) => {
     try {
@@ -74,34 +73,67 @@ export default function CameraScreen() {
           quality: 1,
         });
 
-        if (!result.cancelled) {
-          setSelectedImage(result.uri);
-          console.log('Image selected from gallery:', result.uri);
+        if (!result.canceled && result.assets && result.assets[0].uri) {
+          setSelectedImage(result.assets[0].uri);
+          await handleImageDetection(result.assets[0].uri);  // Perform image detection
         }
       } catch (error) {
         console.error('Error picking image:', error);
       }
     } else {
-      console.log('Gallery permission is required.');
+      Alert.alert('Permission Denied', 'Gallery permission is required to access photos.');
     }
   };
 
-  const handleTapToFocus = async (event) => {
-    // Adjust focus depth based on the tap
-    const { locationY } = event.nativeEvent;
-    const screenHeight = Dimensions.get('window').height;
+  // Send image to the API for prediction
+  const handleImageDetection = async (uri) => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('file', {
+      uri: uri,
+      name: 'photo.jpg',
+      type: 'image/jpeg', 
+    });
 
-    // Calculate focus depth based on tap location
-    const calculatedDepth = locationY / screenHeight;
-    setFocusDepth(calculatedDepth);
-    console.log('Focus depth set to:', calculatedDepth);
+    try {
+      const response = await fetch('http://192.168.182.197:8000/predict/', {  // Update with personal IP address
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data); // Debug log to see the response structure
+
+      if (data && data.predicted_label) {
+        setResultLabel(data.predicted_label); // Update the result label based on response
+        Alert.alert('Detection Result', `Detected: ${data.predicted_label}`);
+      } else {
+        Alert.alert('Error', 'No valid prediction returned from the server.');
+      }
+    } catch (error) {
+      console.error('Error in image detection:', error);
+      Alert.alert('Error', 'There was an error processing your image.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      {loading && (
+        <ActivityIndicator size="large" color="#fff" style={{ position: 'absolute', top: height * 0.5 }} />
+      )}
+
       {/* Top shadow bar with back button */}
       <View style={styles.topShadowBar}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Icon name="arrow-back" size={30} color="white" />
         </TouchableOpacity>
       </View>
@@ -109,28 +141,11 @@ export default function CameraScreen() {
       {/* Snaps Remaining Display */}
       <View style={styles.snapsContainer}>
         {pictureCount > 0 ? (
-          <Text style={styles.snapsText}>Snaps Remaining: {pictureCount} / {pictureLimit}</Text>
+          <Text style={styles.snapsText}>Snaps Remaining: {pictureCount} / 3</Text>
         ) : (
           <TouchableOpacity onPress={() => router.push('/payment')}>
             <Text style={styles.snapsText}>Purchase more snaps</Text>
           </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Camera with Tap-to-Focus */}
-      <View style={styles.cameraContainer} onTouchEnd={handleTapToFocus}>
-        {hasCameraPermission === null ? (
-          <Text>Waiting for camera permission...</Text>
-        ) : hasCameraPermission === false ? (
-          <Text>Camera permission denied.</Text>
-        ) : (
-          <Camera
-            ref={cameraRef}
-            style={styles.camera}
-            type={Camera.Constants.Type.back}
-            focusDepth={focusDepth} // Control focus depth based on tap
-            autoFocus={Camera.Constants.AutoFocus.on} // Enable autofocus
-          />
         )}
       </View>
 
@@ -141,37 +156,36 @@ export default function CameraScreen() {
             <Icon name="photo-library" size={50} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton} onPress={takePicture}>
-            <MaterialIcons name="photo-camera" size={50} color="white" />
+            <Icon name="photo-camera" size={50} color="white" />
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Image preview */}
-      {selectedImage && (
+      {selectedImage ? (
         <View style={styles.previewContainer}>
           <Text style={styles.previewText}>Selected Image:</Text>
           <Image source={{ uri: selectedImage }} style={[styles.previewImage, { width: width * 0.8, height: width * 0.8 }]} />
+        </View>
+      ) : (
+        <Text style={styles.previewText}>No image selected yet.</Text>
+      )}
+
+      {/* Show result label */}
+      {resultLabel !== '' && (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultText}>Prediction Result: {resultLabel}</Text>
         </View>
       )}
     </SafeAreaView>
   );
 }
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
-  },
-  cameraContainer: {
-    width: '100%',
-    height: width * 4 / 3, // 3:4 aspect ratio
-    marginTop: height * 0.18,
-    borderRadius: 10,
-    overflow: 'hidden',
-    alignSelf: 'center', // Center the camera container
-  },
-  camera: {
-    flex: 1,
   },
   topShadowBar: {
     position: 'absolute',
@@ -189,13 +203,13 @@ const styles = StyleSheet.create({
   },
   snapsContainer: {
     position: 'absolute',
-    top: height * 0.2, // Position it above the camera container
+    top: height * 0.2,
     width: '50%',
     alignSelf: 'center',
     alignItems: 'center',
     paddingVertical: height * 0.01,
-    backgroundColor: 'rgba(175, 225, 175, 0.4)', // Orange background with 40% opacity
-    borderRadius: 20, // Rounded corners
+    backgroundColor: 'rgba(175, 225, 175, 0.4)',
+    borderRadius: 20,
     zIndex: 2,
   },
   snapsText: {
@@ -211,28 +225,53 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   iconContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
+    justifyContent: 'space-between',
+    width: '60%',
   },
   iconButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: width * 0.08,
+    padding: 10,
   },
   previewContainer: {
+    position: 'absolute',
+    bottom: height * 0.25,
+    width: '100%',
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: height * 0.02,
   },
   previewText: {
     color: 'white',
-    fontSize: width * 0.04,
-    marginBottom: height * 0.01,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
   previewImage: {
-    resizeMode: 'cover',
+    resizeMode: 'contain',
+  },
+  resultContainer: {
+    position: 'absolute',
+    top: height * 0.6,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 10,
+    elevation: 5, // for Android shadow
+    shadowColor: '#000', // for iOS shadow
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  },
+  resultText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
