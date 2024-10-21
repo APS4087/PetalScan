@@ -96,7 +96,7 @@ export default function CameraScreen() {
     });
 
     try {
-      const response = await fetch('http://192.168.182.197:8000/predict/', {  // Update with personal IP address
+      const response = await fetch('http://3.26.10.254:8000/predict/', {  
         method: 'POST',
         body: formData,
         headers: {
