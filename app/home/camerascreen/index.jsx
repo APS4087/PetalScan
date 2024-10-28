@@ -1,57 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Image, Dimensions, Alert, ActivityIndicator } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import React, { useState, useEffect, useRef } from 'react';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Alert, Dimensions, ActivityIndicator, Image } from 'react-native';
+import { Camera } from 'expo-camera/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import Icon from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
+import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
 
 const { width, height } = Dimensions.get('window');
+const SERVER_URL = 'http://3.26.10.254:8000/';
 
-export default function CameraScreen() { 
+export default function CameraScreen() {
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState(null);
+  const cameraRef = useRef(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [pictureCount, setPictureCount] = useState(3);
   const [loading, setLoading] = useState(false);
-  const [resultLabel, setResultLabel] = useState(''); // State for the detection result
+  const [resultLabel, setResultLabel] = useState('');
+  const [zoom, setZoom] = useState(0);
+  const [scale, setScale] = useState(1); // State for pinch scale
 
-  // Request permission for media library
+  // Set the camera height to maintain the aspect ratio
+  const cameraHeight = width * (4 / 3); // 4:3 aspect ratio for the camera
+
   useEffect(() => {
     (async () => {
-      const { status: galleryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasCameraPermission(status === 'granted');
+      const { status: galleryStatus } = await MediaLibrary.requestPermissionsAsync();
       setHasGalleryPermission(galleryStatus === 'granted');
     })();
   }, []);
 
   const takePicture = async () => {
-    if (pictureCount > 0) {
-      if (hasGalleryPermission) {
-        try {
-          let result = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-          });
-  
-          console.log(result);  // Check the result structure
-  
-          if (!result.canceled && result.assets && result.assets[0].uri) {
-            setSelectedImage(result.assets[0].uri);
-            setPictureCount(pictureCount - 1); // Decrease picture count by 1
-            savePictureToGallery(result.assets[0].uri); // Save the picture to the gallery
-            handleImageDetection(result.assets[0].uri);  // Perform image detection
-          }
-        } catch (error) {
-          console.error('Error taking picture:', error);
-        }
-      } else {
-        Alert.alert('Permission Denied', 'Camera and gallery permissions are required to take pictures.');
+    if (pictureCount > 0 && cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+        setSelectedImage(photo.uri); // Set the captured image URI
+        setPictureCount(pictureCount - 1);
+        savePictureToGallery(photo.uri);
+        handleImageDetection(photo.uri); // Call for image processing
+      } catch (error) {
+        console.error('Error taking picture:', error);
       }
     } else {
       Alert.alert('Limit Reached', 'You have reached your daily limit. Purchase a snaps bundle for more!');
     }
   };
-  
 
   const savePictureToGallery = async (uri) => {
     try {
@@ -63,57 +59,31 @@ export default function CameraScreen() {
     }
   };
 
-  const pickImageFromGallery = async () => {
-    if (hasGalleryPermission) {
-      try {
-        let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
-        });
-
-        if (!result.canceled && result.assets && result.assets[0].uri) {
-          setSelectedImage(result.assets[0].uri);
-          await handleImageDetection(result.assets[0].uri);  // Perform image detection
-        }
-      } catch (error) {
-        console.error('Error picking image:', error);
-      }
-    } else {
-      Alert.alert('Permission Denied', 'Gallery permission is required to access photos.');
-    }
-  };
-
-  // Send image to the API for prediction
   const handleImageDetection = async (uri) => {
-    setLoading(true);
+    setLoading(true); // Start loading only for processing
     const formData = new FormData();
     formData.append('file', {
-      uri: uri,
+      uri,
       name: 'photo.jpg',
-      type: 'image/jpeg', 
+      type: 'image/jpeg',
     });
-
+  
     try {
-      const response = await fetch('http://3.26.10.254:8000/predict/', {  
+      const response = await fetch(`${SERVER_URL}predict/`, {
         method: 'POST',
         body: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
+  
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
+  
       const data = await response.json();
-      console.log('API Response:', data); // Debug log to see the response structure
-
       if (data && data.predicted_label) {
-        setResultLabel(data.predicted_label); // Update the result label based on response
-        Alert.alert('Detection Result', `Detected: ${data.predicted_label}`);
+        setResultLabel(data.predicted_label);
       } else {
         Alert.alert('Error', 'No valid prediction returned from the server.');
       }
@@ -121,63 +91,84 @@ export default function CameraScreen() {
       console.error('Error in image detection:', error);
       Alert.alert('Error', 'There was an error processing your image.');
     } finally {
-      setLoading(false);
+      setLoading(false); // End loading
+    }
+  };
+  
+
+  const onPinchEvent = (event) => {
+    const { scale: newScale } = event.nativeEvent;
+    if (newScale > 1) {
+      setScale(newScale);
+      setZoom(Math.min(newScale - 1, 1)); // Limit zoom to max of 1
+    } else {
+      setScale(1);
+      setZoom(0); // Reset zoom when pinch is released
     }
   };
 
+  const resetPrediction = () => {
+    setSelectedImage(null); // Clear the selected image
+    setResultLabel(''); // Clear the prediction result
+    setPictureCount(3); // Reset the picture count if needed
+  };
+
+  if (hasCameraPermission === null || hasGalleryPermission === null) {
+    return <View />;
+  }
+  if (hasCameraPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
-      {loading && (
-        <ActivityIndicator size="large" color="#fff" style={{ position: 'absolute', top: height * 0.5 }} />
-      )}
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        {loading && <ActivityIndicator size="large" color="#fff" style={styles.loadingIndicator} />}
+        
+        <View style={styles.cameraWrapper}>
+          <PinchGestureHandler onGestureEvent={onPinchEvent}>
+            <Camera style={[styles.camera, { height: cameraHeight }]} ref={cameraRef} ratio="4:3" zoom={zoom} />
+          </PinchGestureHandler>
+        </View>
 
-      {/* Top shadow bar with back button */}
-      <View style={styles.topShadowBar}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Icon name="arrow-back" size={30} color="white" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Snaps Remaining Display */}
-      <View style={styles.snapsContainer}>
-        {pictureCount > 0 ? (
-          <Text style={styles.snapsText}>Snaps Remaining: {pictureCount} / 3</Text>
-        ) : (
-          <TouchableOpacity onPress={() => router.push('/payment')}>
-            <Text style={styles.snapsText}>Purchase more snaps</Text>
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Icon name="arrow-back" size={30} color="white" />
           </TouchableOpacity>
+          <Text style={styles.snapsText}>Snaps: {pictureCount} / 3</Text>
+        </View>
+
+        <View style={styles.bottomBar}>
+          <TouchableOpacity style={styles.iconButton} onPress={resetPrediction}>
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
+            <View style={styles.innerCaptureButton} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton}>
+            <Icon name="settings" size={40} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        {loading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={styles.loadingText}>Processing...</Text>
+          </View>
         )}
-      </View>
 
-      {/* Bottom shadow bar with centered icons */}
-      <View style={styles.bottomShadowBar}>
-        <View style={styles.iconContainer}>
-          <TouchableOpacity style={styles.iconButton} onPress={pickImageFromGallery}>
-            <Icon name="photo-library" size={50} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={takePicture}>
-            <Icon name="photo-camera" size={50} color="white" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Image preview */}
-      {selectedImage ? (
-        <View style={styles.previewContainer}>
-          <Text style={styles.previewText}>Selected Image:</Text>
-          <Image source={{ uri: selectedImage }} style={[styles.previewImage, { width: width * 0.8, height: width * 0.8 }]} />
-        </View>
-      ) : (
-        <Text style={styles.previewText}>No image selected yet.</Text>
-      )}
-
-      {/* Show result label */}
-      {resultLabel !== '' && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultText}>Prediction Result: {resultLabel}</Text>
-        </View>
-      )}
-    </SafeAreaView>
+        {selectedImage && !loading && (
+          <View style={styles.previewContainer}>
+            <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+            {resultLabel !== '' && (
+              <View style={styles.resultContainer}>
+                <Text style={styles.resultText}>Prediction Result: {resultLabel}</Text>
+              </View>
+            )}
+          </View>
+        )}
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
@@ -187,91 +178,115 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'black',
   },
-  topShadowBar: {
-    position: 'absolute',
-    top: height * 0.05,
-    width: '100%',
-    height: height * 0.08,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 1,
+  cameraWrapper: {
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'flex-start',
-    paddingHorizontal: width * 0.04,
+    alignItems: 'center',
+    borderRadius: 50,
+    overflow: 'hidden',
+  },
+  cancelButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  camera: {
+    width: '100%',
+    justifyContent: 'flex-end',
+  },
+  loadingIndicator: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -20 }, { translateY: -20 }],
+  },
+  topBar: {
+    position: 'absolute',
+    top: 40,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    alignItems: 'center',
   },
   backButton: {
-    padding: 0,
-  },
-  snapsContainer: {
-    position: 'absolute',
-    top: height * 0.2,
-    width: '50%',
-    alignSelf: 'center',
-    alignItems: 'center',
-    paddingVertical: height * 0.01,
-    backgroundColor: 'rgba(175, 225, 175, 0.4)',
-    borderRadius: 20,
-    zIndex: 2,
+    padding: 5,
   },
   snapsText: {
     color: 'white',
     fontWeight: 'bold',
-    textAlign: 'center',
   },
-  bottomShadowBar: {
+  bottomBar: {
     position: 'absolute',
-    bottom: height * 0.04,
+    bottom: 40,
     width: '100%',
-    height: height * 0.16,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '60%',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
   iconButton: {
     padding: 10,
   },
+  captureButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  innerCaptureButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'red',
+  },
   previewContainer: {
     position: 'absolute',
-    bottom: height * 0.25,
+    bottom: height * 0.2,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  previewText: {
-    color: 'white',
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
   previewImage: {
+    width: '80%', // Responsive width
+    height: undefined, // Allow height to adjust based on aspect ratio
+    aspectRatio: 1, // Maintain aspect ratio
     resizeMode: 'contain',
   },
   resultContainer: {
-    position: 'absolute',
-    top: height * 0.6,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    marginTop: 10,
+    padding: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     borderRadius: 10,
-    elevation: 5, // for Android shadow
-    shadowColor: '#000', // for iOS shadow
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    width: '100%', // Allow full width
+    alignSelf: 'center', // Center the container horizontally
+    maxWidth: '90%', // Optional: limit max width to avoid edge-to-edge stretching
   },
+  
   resultText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 'bold',
+    textAlign: 'center', // Center text alignment
+    flexWrap: 'wrap', // Allow text to wrap
+    lineHeight: 24, // Optional: Improve readability with line height
+    flexShrink: 1, // Allow text to shrink to fit within container
+  },
+  
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  loadingText: {
+    color: 'white',
+    marginTop: 10,
+    fontSize: 18,
     textAlign: 'center',
   },
 });
