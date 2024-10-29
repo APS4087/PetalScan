@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Alert, Dimensions, ActivityIndicator, Image } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Alert, Dimensions, ActivityIndicator, Image, Modal } from 'react-native';
 import { Camera } from 'expo-camera/legacy';
 import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';
 import Icon from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
@@ -20,6 +21,7 @@ export default function CameraScreen() {
   const [resultLabel, setResultLabel] = useState('');
   const [zoom, setZoom] = useState(0);
   const [scale, setScale] = useState(1); // State for pinch scale
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
   // Set the camera height to maintain the aspect ratio
   const cameraHeight = width * (4 / 3); // 4:3 aspect ratio for the camera
@@ -94,7 +96,6 @@ export default function CameraScreen() {
       setLoading(false); // End loading
     }
   };
-  
 
   const onPinchEvent = (event) => {
     const { scale: newScale } = event.nativeEvent;
@@ -113,6 +114,20 @@ export default function CameraScreen() {
     setPictureCount(3); // Reset the picture count if needed
   };
 
+  const openImageModal = () => {
+    setModalVisible(true); // Open modal
+  };
+
+  const closeModal = () => {
+    setModalVisible(false); // Close modal
+  };
+
+  const shareImage = async () => {
+    if (selectedImage) {
+      await Sharing.shareAsync(selectedImage);
+    }
+  };
+
   if (hasCameraPermission === null || hasGalleryPermission === null) {
     return <View />;
   }
@@ -125,19 +140,44 @@ export default function CameraScreen() {
       <SafeAreaView style={styles.container}>
         {loading && <ActivityIndicator size="large" color="#fff" style={styles.loadingIndicator} />}
         
+        {/* Camera View */}
         <View style={styles.cameraWrapper}>
+          {/* "Snaps Left" Text hovering above Camera */}
+          <Text style={styles.snapsText}>Snaps Left: {pictureCount} / 3</Text>
+  
           <PinchGestureHandler onGestureEvent={onPinchEvent}>
-            <Camera style={[styles.camera, { height: cameraHeight }]} ref={cameraRef} ratio="4:3" zoom={zoom} />
+            <Camera
+              style={[styles.camera, { height: cameraHeight }]}
+              ref={cameraRef}
+              ratio="4:3"
+              zoom={zoom}
+            />
           </PinchGestureHandler>
         </View>
-
+  
+        {/* Top Bar */}
         <View style={styles.topBar}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Icon name="arrow-back" size={30} color="white" />
           </TouchableOpacity>
-          <Text style={styles.snapsText}>Snaps: {pictureCount} / 3</Text>
+  
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {selectedImage && (
+              <>
+                <TouchableOpacity onPress={() => savePictureToGallery(selectedImage)} style={styles.iconButton}>
+                  <Icon name="save-alt" size={25} color="white" />
+                  <Text style={styles.optionText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={shareImage} style={styles.iconButton}>
+                  <Icon name="share" size={25} color="white" />
+                  <Text style={styles.optionText}>Share</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
         </View>
-
+  
+        {/* Bottom Bar */}
         <View style={styles.bottomBar}>
           <TouchableOpacity style={styles.iconButton} onPress={resetPrediction}>
             <Text style={styles.cancelButtonText}>Cancel</Text>
@@ -149,14 +189,14 @@ export default function CameraScreen() {
             <Icon name="settings" size={40} color="white" />
           </TouchableOpacity>
         </View>
-
+  
         {loading && (
           <View style={styles.loadingOverlay}>
             <ActivityIndicator size="large" color="#fff" />
             <Text style={styles.loadingText}>Processing...</Text>
           </View>
         )}
-
+  
         {selectedImage && !loading && (
           <View style={styles.previewContainer}>
             <Image source={{ uri: selectedImage }} style={styles.previewImage} />
@@ -170,7 +210,7 @@ export default function CameraScreen() {
       </SafeAreaView>
     </GestureHandlerRootView>
   );
-}
+}  
 
 // Styles
 const styles = StyleSheet.create({
@@ -182,17 +222,24 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 50,
+    borderRadius: width * 0.05, // Responsive border radius
     overflow: 'hidden',
+    position: 'relative', // This allows children to be positioned absolutely
   },
-  cancelButtonText: {
+  snapsText: {
+    position: 'absolute',
+    top: height * 0.2, // Responsive positioning
+    alignSelf: 'center',
+    zIndex: 1,
     color: 'white',
-    fontSize: 18,
     fontWeight: 'bold',
+    fontSize: width * 0.04, // Responsive font size
   },
   camera: {
     width: '100%',
     justifyContent: 'flex-end',
+    borderRadius: width * 0.05, // Responsive border radius
+    overflow: 'hidden', // Ensure content is clipped within rounded corners
   },
   loadingIndicator: {
     position: 'absolute',
@@ -202,77 +249,80 @@ const styles = StyleSheet.create({
   },
   topBar: {
     position: 'absolute',
-    top: 40,
+    top: height * 0.05, // Responsive positioning
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: width * 0.05, // Responsive padding
     alignItems: 'center',
+    zIndex: 2,	
   },
   backButton: {
-    padding: 5,
+    padding: width * 0.02, // Responsive padding
   },
-  snapsText: {
+  iconButton: {
+    alignItems: 'center',
+    padding: width * 0.02, // Responsive padding
+    marginHorizontal: width * 0.02, // Responsive margin
+  },
+  optionText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontSize: width * 0.03, // Responsive font size
+    textAlign: 'center',
+    paddingHorizontal: width * 0.01, // Responsive padding
+    width: width * 0.1, // Responsive width
   },
   bottomBar: {
     position: 'absolute',
-    bottom: 40,
+    bottom: height * 0.05, // Responsive positioning
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
   },
-  iconButton: {
-    padding: 10,
-  },
   captureButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: width * 0.18, // Responsive size
+    height: width * 0.18, // Responsive size
+    borderRadius: width * 0.09, // Responsive border radius
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
   },
   innerCaptureButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: width * 0.15, // Responsive size
+    height: width * 0.15, // Responsive size
+    borderRadius: width * 0.075, // Responsive border radius
     backgroundColor: 'red',
   },
   previewContainer: {
     position: 'absolute',
-    bottom: height * 0.2,
+    bottom: width * 0.4,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   previewImage: {
-    width: '80%', // Responsive width
-    height: undefined, // Allow height to adjust based on aspect ratio
-    aspectRatio: 1, // Maintain aspect ratio
+    width: '90%',
+    aspectRatio: 1,
     resizeMode: 'contain',
+    borderRadius: width * 0.05, // Responsive border radius
   },
   resultContainer: {
-    marginTop: 10,
-    padding: 10,
+    marginTop: height * 0.01, // Responsive margin
+    padding: height * 0.02, // Responsive padding
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    borderRadius: 10,
-    width: '100%', // Allow full width
-    alignSelf: 'center', // Center the container horizontally
-    maxWidth: '90%', // Optional: limit max width to avoid edge-to-edge stretching
+    borderRadius: width * 0.05, // Responsive border radius
+    width: '90%',
+    alignSelf: 'center',
   },
-  
   resultText: {
     color: 'white',
-    fontSize: 18,
-    textAlign: 'center', // Center text alignment
-    flexWrap: 'wrap', // Allow text to wrap
-    lineHeight: 24, // Optional: Improve readability with line height
-    flexShrink: 1, // Allow text to shrink to fit within container
+    fontSize: width * 0.045, // Responsive font size
+    textAlign: 'center',
+    flexWrap: 'wrap',
+    lineHeight: width * 0.06, // Responsive line height
+    flexShrink: 1,
   },
-  
   loadingOverlay: {
     position: 'absolute',
     top: 0,
@@ -281,12 +331,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   loadingText: {
     color: 'white',
-    marginTop: 10,
-    fontSize: 18,
+    marginTop: height * 0.01, // Responsive margin
+    fontSize: width * 0.045, // Responsive font size
     textAlign: 'center',
+  },
+  cancelButtonText: {
+    color: 'white',
+    fontSize: width * 0.045, // Responsive font size
+    fontWeight: 'bold',
   },
 });
