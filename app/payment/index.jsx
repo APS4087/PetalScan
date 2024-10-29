@@ -14,11 +14,20 @@ export default function PremiumFeatureScreen() {
 
   const handleContinue = () => {
     if (selectedPlan) {
-      console.log('Selected Plan:', selectedPlan);
-      // Redirect to the Stripe payment link
-      Linking.openURL('https://buy.stripe.com/3csdSE8g19uG6QMbIJ').catch((err) => 
-        console.error("An error occurred", err)
-      );
+      // Define Stripe links for each plan
+      const stripeLinks = {
+        'Monthly': 'https://buy.stripe.com/3csdSE8g19uG6QMbIJ',
+        '20 snaps': 'https://buy.stripe.com/test_20snaps_link',  // Replace with actual link
+        '10 snaps': 'https://buy.stripe.com/test_10snaps_link',  // Replace with actual link
+      };
+
+      // Open the corresponding Stripe link
+      const selectedLink = stripeLinks[selectedPlan];
+      if (selectedLink) {
+        Linking.openURL(selectedLink).catch((err) => 
+          console.error("An error occurred", err)
+        );
+      }
     } else {
       Alert.alert('Selection Required', 'Please select a plan before continuing.');
     }
