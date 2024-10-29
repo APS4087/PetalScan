@@ -1,16 +1,44 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import React from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import images from '../../../components/data';
 
 export default function Notifications() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState([]);
+
+  // Fetch events from the backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch('http://192.168.102.197:8000/events/');
+        const data = await response.json();
+        console.log(data)
+        setEvents(data.upcoming_events);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   // Handler for notification click
   const handleNotificationClick = () => {
     // Navigate directly to the NotificationDetailScreen in the insideNotification folder
     router.push('/home/notifications/notification');
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -21,48 +49,28 @@ export default function Notifications() {
 
       <View style={styles.notificationContainer}>
         <Text style={styles.sectionTitle}>Latest Notifications</Text>
-        <TouchableOpacity
-          style={styles.notificationItem}
-          onPress={handleNotificationClick}  // No parameters needed, just navigate
-        >
-          <View style={styles.notificationTopContainer}>
-            <Text style={styles.smallNotification}>New</Text>
-            <Text style={styles.notificationDate}>Aug 15, 2024</Text>
-          </View>
-          <View style={styles.notificationContent}>
-            <Text style={styles.notificationTitle}>New Update Available</Text>
-            <View style={styles.innerContainer}>
-              <Text style={styles.innerTitle}>Closed until September</Text>
-              <Image
-                source={images.parkImage} // Using local image
-                style={styles.innerImage}
-              />
+        {events.map((event, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.notificationItem}
+            onPress={handleNotificationClick}  // No parameters needed, just navigate
+          >
+            <View style={styles.notificationTopContainer}>
+              <Text style={styles.smallNotification}>New</Text>
+              <Text style={styles.notificationDate}>{event.date}</Text>
             </View>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.notificationBottonContainer}>
-        <Text style={styles.oldTitle}>Old Notifications</Text>
-        <TouchableOpacity
-          style={styles.notificationItem}
-          onPress={handleNotificationClick}  // No parameters needed, just navigate
-        >
-          <View style={styles.notificationTopContainer}>
-            <Text style={styles.smallNotification}>Update</Text>
-            <Text style={styles.notificationDate}>Jul 20, 2024</Text>
-          </View>
-          <View style={styles.notificationContent}>
-            <Text style={styles.notificationTitle}>Feature Update</Text>
-            <View style={styles.oldContainer}>
-              <Text style={styles.innerTitle}>Closed until September</Text>
-              <Image
-                source={images.parkImage2} // Using local image
-                style={styles.innerImage}
-              />
+            <View style={styles.notificationContent}>
+              <Text style={styles.notificationTitle}>{event.title}</Text>
+              <View style={styles.innerContainer}>
+                <Text style={styles.innerTitle}>{event.description}</Text>
+                <Image
+                  source={images.parkImage} // Using local image
+                  style={styles.innerImage}
+                />
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        ))}
       </View>
     </ScrollView>
   );
@@ -75,13 +83,14 @@ const styles = StyleSheet.create({
     padding: 30,
     marginTop: -20,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   notificationContainer: {
     marginBottom: 10,
     marginTop: -60,
-  },
-  notificationBottonContainer: {
-    marginBottom: 10,
-
   },
   logo: {
     height: 20,
@@ -100,11 +109,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     marginTop: "30%",
-  },
-  oldTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
   },
   notificationItem: {
     padding: 12,
@@ -145,14 +149,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#149FBF', // Light blue background
-    padding: 8,
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  oldContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#3588C6', // Light blue background
     padding: 8,
     borderRadius: 8,
     marginTop: 8,
