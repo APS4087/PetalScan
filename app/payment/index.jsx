@@ -1,8 +1,7 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, Linking, Alert } from 'react-native';
 import images from '../../components/data';
-
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,9 +15,12 @@ export default function PremiumFeatureScreen() {
   const handleContinue = () => {
     if (selectedPlan) {
       console.log('Selected Plan:', selectedPlan);
-      // Add further navigation or actions here
+      // Redirect to the Stripe payment link
+      Linking.openURL('https://buy.stripe.com/3csdSE8g19uG6QMbIJ').catch((err) => 
+        console.error("An error occurred", err)
+      );
     } else {
-      console.log('Please select a plan.');
+      Alert.alert('Selection Required', 'Please select a plan before continuing.');
     }
   };
 
@@ -30,9 +32,9 @@ export default function PremiumFeatureScreen() {
       {/* Premium Feature Content */}
       <View style={styles.contentContainer}>
         {/* Back button */}
-      <TouchableOpacity style={styles.logo} onPress={() => router.push('/home')}>
-        <Image source={images.backArrowIcon} style={styles.arrow} />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.logo} onPress={() => router.push('/home')}>
+          <Image source={images.backArrowIcon} style={styles.arrow} />
+        </TouchableOpacity>
 
         <Text style={styles.title}>PetalScan</Text>
         <Text style={styles.subtitle}>
@@ -81,13 +83,14 @@ export default function PremiumFeatureScreen() {
 
         <Text style={styles.termsText}>
           By placing this order, you agree to the <Text style={styles.linkText}>Terms of Service</Text> and <Text style={styles.linkText}>Privacy Policy</Text>. 
-          Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period.
+          Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period.
         </Text>
       </View>
     </View>
   );
 }
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -123,15 +126,6 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     alignItems: 'center',
   },
-  closeButton: {
-    position: 'absolute',
-    top: 50,
-    right: 10,
-  },
-  closeButtonText: {
-    fontSize: 18,
-    color: '#000',
-  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -147,7 +141,7 @@ const styles = StyleSheet.create({
   },
   benefitContainer: {
     width: '100%',
-    alignItems: 'flex-start',  // Align benefits to the left
+    alignItems: 'flex-start',
     marginBottom: 20,
   },
   benefit: {
@@ -156,12 +150,11 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 10,
     color: '#000000',
-    fontWeight: 'bold',  // Benefits are now bold
+    fontWeight: 'bold',
   },
   planContainer: {
     width: '90%',
     marginBottom: 20,
-    marginTop: 0,
   },
   plan: {
     borderWidth: 1,
@@ -169,8 +162,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 12,
     marginBottom: 10,
-    flexDirection: 'row',  // Align items in a row (Plan type on left, price on right)
-    justifyContent: 'space-between',  // Distribute space between Plan type and price
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#FFF',
   },
@@ -184,7 +177,7 @@ const styles = StyleSheet.create({
   },
   planPrice: {
     fontSize: 16,
-    fontWeight: 'bold',  // Plan price is now bold
+    fontWeight: 'bold',
     color: '#0D368C',
   },
   cancelText: {
@@ -200,7 +193,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   disabledButton: {
-    backgroundColor: '#888',  // Disabled color
+    backgroundColor: '#888',
   },
   continueButtonText: {
     fontSize: 16,
