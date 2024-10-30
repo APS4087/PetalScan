@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import images from '../../../components/data';
 
+const LOCAL_MACHINE_IP = 'http://192.168.102.197:8000'; 
+const HOME_WIFI = 'http://192.168.10.218:8000';
+
 export default function Notifications() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -12,7 +15,7 @@ export default function Notifications() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('http://192.168.102.197:8000/events/');
+        const response = await fetch(`${HOME_WIFI}/events`);
         const data = await response.json();
         console.log(data)
         setEvents(data.upcoming_events);

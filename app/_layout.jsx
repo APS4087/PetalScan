@@ -3,6 +3,8 @@ import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import { AuthProvider, useAuth } from '../context/authContext';
 import { View, ActivityIndicator } from 'react-native';
+import { StripeProvider } from '@stripe/stripe-react-native';
+
 
 function AppContent() {
   const { loading } = useAuth();
@@ -31,8 +33,10 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY}>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </StripeProvider>
   );
 }
