@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput } from 'react-native';
 import { ScrollView } from 'react-native';
 import { Image } from 'react-native';
+import LottieView from 'lottie-react-native';
 import UserNavbar from '../../components/UserNavbar';
 import { useRouter } from 'expo-router';
 import images from '../../components/data';
@@ -51,7 +52,16 @@ function HomeScreen() {
   }, []);
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />;
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          source={require('../../assets/animations/plantLoadingAnimation.json')}
+          autoPlay
+          loop
+          style={styles.lottie}
+        />
+      </View>
+    );
   }
 
   if (error) {
@@ -201,9 +211,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: width * 0.045,
   },
-  loadingIndicator: {
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  lottie: {
+    width: 150,
+    height: 150,
   },
   errorText: {
     textAlign: 'center',

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Alert, Dimensions, ActivityIndicator, Image, Modal } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Alert, Dimensions, Image, Modal } from 'react-native';
 import { Camera } from 'expo-camera/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import Icon from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
+import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
 const SERVER_URL = 'http://3.26.10.254:8000/';
@@ -52,17 +53,22 @@ export default function CameraScreen() {
   };
 
   const savePictureToGallery = async (uri) => {
-    try {
-      const asset = await MediaLibrary.createAssetAsync(uri);
-      await MediaLibrary.createAlbumAsync('Camera', asset, false);
-      console.log('Picture saved to gallery:', asset);
-    } catch (error) {
-      console.error('Error saving picture to gallery:', error);
+    if (hasGalleryPermission) {
+      try {
+        const asset = await MediaLibrary.createAssetAsync(uri);
+        await MediaLibrary.createAlbumAsync('Camera', asset, false);
+        console.log('Picture saved to gallery:', asset);
+      } catch (error) {
+        console.error('Error saving picture to gallery:', error);
+      }
+    } else {
+      console.warn('Gallery permission not granted');
     }
   };
 
   const handleImageDetection = async (uri) => {
     setLoading(true); // Start loading only for processing
+    console.log('Loading started'); // Debugging log
     const formData = new FormData();
     formData.append('file', {
       uri,
@@ -94,6 +100,7 @@ export default function CameraScreen() {
       Alert.alert('Error', 'There was an error processing your image.');
     } finally {
       setLoading(false); // End loading
+      console.log('Loading ended'); // Debugging log
     }
   };
 
@@ -138,7 +145,17 @@ export default function CameraScreen() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <SafeAreaView style={styles.container}>
-        {loading && <ActivityIndicator size="large" color="#fff" style={styles.loadingIndicator} />}
+        {loading && (
+          <View style={styles.loadingOverlay}>
+            <LottieView
+              source={require('../../../assets/animations/plantLoadingAnimation.json')}
+              autoPlay
+              loop
+              style={styles.lottie}
+            />
+            <Text style={styles.loadingText}>Processing...</Text>
+          </View>
+        )}
         
         {/* Camera View */}
         <View style={styles.cameraWrapper}>
@@ -189,13 +206,6 @@ export default function CameraScreen() {
             <Icon name="settings" size={40} color="white" />
           </TouchableOpacity>
         </View>
-  
-        {loading && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#fff" />
-            <Text style={styles.loadingText}>Processing...</Text>
-          </View>
-        )}
   
         {selectedImage && !loading && (
           <View style={styles.previewContainer}>
@@ -332,6 +342,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 3, // Ensure it is above other elements
+  },
+  lottie: {
+    width: 150,
+    height: 150,
   },
   loadingText: {
     color: 'white',

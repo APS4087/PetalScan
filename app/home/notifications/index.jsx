@@ -1,6 +1,7 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
+import LottieView from 'lottie-react-native';
 import images from '../../../components/data';
 
 const LOCAL_MACHINE_IP = 'http://192.168.102.197:8000'; 
@@ -38,7 +39,12 @@ export default function Notifications() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <LottieView
+          source={require('../../../assets/animations/notiLoadingAnimation.json')}
+          autoPlay
+          loop
+          style={styles.lottie}
+        />
       </View>
     );
   }
@@ -90,6 +96,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  lottie: {
+    width: 300,
+    height: 300,
   },
   notificationContainer: {
     marginBottom: 10,
