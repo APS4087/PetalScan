@@ -9,7 +9,7 @@ import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gestur
 import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
-const SERVER_URL = 'http://3.26.10.254:8000/';
+const AWS_SERVER_URL = 'http://3.26.185.87:8000';
 
 export default function CameraScreen() {
   const router = useRouter();
@@ -77,7 +77,7 @@ export default function CameraScreen() {
     });
   
     try {
-      const response = await fetch(`${SERVER_URL}predict/`, {
+      const response = await fetch(`${AWS_SERVER_URL}/predict/`, {
         method: 'POST',
         body: formData,
         headers: {

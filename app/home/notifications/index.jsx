@@ -6,6 +6,7 @@ import images from '../../../components/data';
 
 const LOCAL_MACHINE_IP = 'http://192.168.102.197:8000'; 
 const HOME_WIFI = 'http://192.168.10.218:8000';
+const AWS_SERVER_URL = 'http://3.26.185.87:8000';
 
 export default function Notifications() {
   const router = useRouter();
@@ -16,12 +17,16 @@ export default function Notifications() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`${HOME_WIFI}/events`);
+        const response = await fetch(`${AWS_SERVER_URL}/events/`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        console.log(data)
-        setEvents(data.upcoming_events);
+        console.log(data);
+        setEvents(data.upcoming_events || []); // Ensure events is always an array
       } catch (error) {
         console.error('Error fetching events:', error);
+        setEvents([]); // Set events to an empty array on error
       } finally {
         setLoading(false);
       }
