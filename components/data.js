@@ -17,6 +17,7 @@ const images = {
   mapsIcon: require("../assets/Icons/maps.png"),
   profileIcon: require("../assets/Icons/profile.png"),
   notifcationIcon: require("../assets/Icons/notification.png"),
+  crownIcon: require("../assets/Icons/crown.png"),
 };
 
 // Export the images object

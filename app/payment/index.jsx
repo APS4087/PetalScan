@@ -1,9 +1,12 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, ActivityIndicator, Modal } from 'react-native';
 import LottieView from 'lottie-react-native';
 import images from '../../components/data';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
+import { db } from '../../firebaseConfig';
+import { collection, addDoc, doc, updateDoc, serverTimestamp, getDoc, setDoc } from 'firebase/firestore';
+import { useAuth } from '../../context/authContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,81 +20,173 @@ export default function PremiumFeatureScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
+  const [isPremium, setIsPremium] = useState(false);
+
+  // Get the current user from AuthContext
+  const { user } = useAuth();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  useEffect(() => {
+    const fetchSubscriptionStatus = async () => {
+      try {
+        const subscriptionRef = doc(collection(db, 'subscriptions'), user.uid);
+        const subscriptionDoc = await getDoc(subscriptionRef);
+        if (subscriptionDoc.exists()) {
+          const subscriptionData = subscriptionDoc.data();
+          const isUserPremium = subscriptionData.plan === 'Monthly' && subscriptionData.status === 'active';
+          setIsPremium(isUserPremium);
+          console.log('User is premium:', isUserPremium);
+        }
+      } catch (error) {
+        console.error('Failed to fetch subscription status:', error);
+      }
+    };
+
+    fetchSubscriptionStatus();
+  }, [user]);
 
   const handlePlanSelection = (plan) => {
     setSelectedPlan(plan);
   };
 
-  const handlePayment = async () => {
+    const handlePayment = async () => {
     setIsLoading(true);
     setPaymentSuccess(false);
     setPaymentError(null);
     try {
-        // Define the payment amount based on the selected plan
-        let amount;
-        switch (selectedPlan) {
-            case 'Monthly':
-                amount = 499; // $4.99 in cents
-                break;
-            case '20 snaps':
-                amount = 200; // $2.00 in cents
-                break;
-            case '10 snaps':
-                amount = 150; // $1.50 in cents
-                break;
-            default:
-                throw new Error('Please select a valid plan.');
-        }
-
-        // Step 1: Call your backend to create a payment intent or subscription
-        const response = await fetch(`${AWS_SERVER_URL}/payment-intent/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount, plan: selectedPlan }), // Pass amount in cents and plan type
-        });
-
-        if (!response.ok) {
-            const errorDetails = await response.json();
-            console.error('Error details:', errorDetails);  // Log the error details
-            throw new Error(`Failed to create payment intent: ${errorDetails.detail || response.statusText}`);
-        }
-
-        // Parse the response to get the client secret
-        const { client_secret } = await response.json();
-        console.log('Client Secret:', client_secret); // Debugging: Log the client secret
-        if (!client_secret) throw new Error('Failed to retrieve payment intent client secret');
-
-        // Step 2: Initialize the payment sheet
-        const { error: initError } = await initPaymentSheet({
-            paymentIntentClientSecret: client_secret,
-            merchantDisplayName: 'PetalScan',
-            currencyCode: 'SGD',
-            // Enable multiple payment methods
-            googlePay: true,
-            applePay: true,
-            style: 'alwaysLight',
-            allowsDelayedPaymentMethods: true,
-        });
-
-        if (initError) throw new Error(`Failed to initialize payment sheet: ${initError.message}`);
-
-        // Step 3: Present the payment sheet to the user
-        const { error: paymentError } = await presentPaymentSheet();
-        if (paymentError) {
-            if (paymentError.code === 'Canceled') {
-                setPaymentError('Payment Canceled: You canceled the payment.');
-            } else {
-                setPaymentError(`Payment Error: ${paymentError.message}`);
-                console.error('Payment error:', paymentError); // Log the error for debugging
-            }
+      // Define the payment amount and snap count based on the selected plan
+      let amount;
+      let plan;
+      let snapCount = 0;
+      switch (selectedPlan) {
+        case 'Monthly':
+          amount = 499; // $4.99 in cents
+          plan = 'Monthly';
+          break;
+        case '20 snaps':
+          amount = 200; // $2.00 in cents
+          plan = '20 snaps';
+          snapCount = 20;
+          break;
+        case '10 snaps':
+          amount = 150; // $1.50 in cents
+          plan = '10 snaps';
+          snapCount = 10;
+          break;
+        default:
+          throw new Error('Please select a valid plan.');
+      }
+  
+      // Step 1: Call your backend to create a payment intent or subscription
+      const response = await fetch(`${HOME_WIFI}/payment-intent/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, plan: selectedPlan, user_id: user.uid }), // Pass amount in cents, plan type, and user ID
+      });
+  
+      if (!response.ok) {
+        const errorDetails = await response.json();
+        console.error('Error details:', errorDetails);  // Log the error details
+        throw new Error(`Failed to create payment intent: ${errorDetails.detail || response.statusText}`);
+      }
+  
+      // Parse the response to get the client secret
+      const { client_secret } = await response.json();
+      console.log('Client Secret:', client_secret); // Debugging: Log the client secret
+      if (!client_secret) throw new Error('Failed to retrieve payment intent client secret');
+  
+      // Step 2: Initialize the payment sheet
+      const { error: initError } = await initPaymentSheet({
+        paymentIntentClientSecret: client_secret,
+        merchantDisplayName: 'PetalScan',
+        currencyCode: 'SGD',
+        // Enable multiple payment methods
+        googlePay: true,
+        applePay: true,
+        style: 'alwaysLight',
+        allowsDelayedPaymentMethods: true,
+      });
+  
+      if (initError) throw new Error(`Failed to initialize payment sheet: ${initError.message}`);
+  
+      // Step 3: Present the payment sheet to the user
+      const { error: paymentError } = await presentPaymentSheet();
+      if (paymentError) {
+        if (paymentError.code === 'Canceled') {
+          setPaymentError('Payment Canceled: You canceled the payment.');
         } else {
-            setPaymentSuccess(true);
+          setPaymentError(`Payment Error: ${paymentError.message}`);
+          console.error('Payment error:', paymentError); // Log the error for debugging
         }
+      } else {
+        // Update the user's snap count and user type in Firestore
+        const userRef = doc(collection(db, 'users'), user.uid);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const newSnapCount = (userData.snaps || 0) + snapCount;
+          const updates = { snaps: newSnapCount };
+          if (plan === 'Monthly') {
+            updates.userType = 'premium';
+            // Check if subscription already exists
+            const subscriptionRef = doc(collection(db, 'subscriptions'), user.uid);
+            const subscriptionDoc = await getDoc(subscriptionRef);
+            if (subscriptionDoc.exists()) {
+              // Update existing subscription
+              await updateDoc(subscriptionRef, {
+                plan,
+                amount,
+                status: 'active',
+                updatedAt: serverTimestamp(),
+              });
+            } else {
+              // Add new subscription to Firestore for premium plan
+              await setDoc(subscriptionRef, {
+                uid: user.uid, // Use the current user's UID
+                plan,
+                amount,
+                status: 'active',
+                createdAt: serverTimestamp(),
+              });
+            }
+          }
+          await updateDoc(userRef, updates);
+          console.log('User updated:', updates);
+        }
+  
+        setPaymentSuccess(true);
+        setIsPremium(plan === 'Monthly');
+        console.log('User is premium after payment:', plan === 'Monthly');
+      }
     } catch (error) {
-        setPaymentError(`Error: ${error.message}`);
-        console.error('Payment process error:', error); // Log the error for debugging
+      setPaymentError(`Error: ${error.message}`);
+      console.error('Payment process error:', error); // Log the error for debugging
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setIsLoading(true);
+    try {
+      // Update the subscription status to 'canceled'
+      const subscriptionRef = doc(collection(db, 'subscriptions'), user.uid);
+      await updateDoc(subscriptionRef, { status: 'canceled' });
+
+      // Update the user's userType to 'normal'
+      const userRef = doc(collection(db, 'users'), user.uid);
+      await updateDoc(userRef, { userType: 'normal' });
+
+      setIsPremium(false);
+      setPaymentSuccess(true);
+      console.log('User is premium after cancellation:', false);
+    } catch (error) {
+      setPaymentError(`Error: ${error.message}`);
+      console.error('Cancel subscription error:', error); // Log the error for debugging
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,41 +213,57 @@ export default function PremiumFeatureScreen() {
           <Text style={styles.benefit}>Singapore botanic garden's database</Text>
         </View>
 
-        <View style={styles.planContainer}>
+        {isPremium ? (
           <TouchableOpacity
-            style={[styles.plan, selectedPlan === 'Monthly' && styles.selectedPlan]}
-            onPress={() => handlePlanSelection('Monthly')}
+            style={styles.cancelButton}
+            onPress={handleCancelSubscription}
+            disabled={isLoading}
           >
-            <Text style={styles.planType}>Monthly</Text>
-            <Text style={styles.planPrice}>$4.99/month</Text>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Text style={styles.cancelButtonText}>Cancel Subscription</Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.plan, selectedPlan === '20 snaps' && styles.selectedPlan]}
-            onPress={() => handlePlanSelection('20 snaps')}
-          >
-            <Text style={styles.planType}>20 snaps</Text>
-            <Text style={styles.planPrice}>$2.00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.plan, selectedPlan === '10 snaps' && styles.selectedPlan]}
-            onPress={() => handlePlanSelection('10 snaps')}
-          >
-            <Text style={styles.planType}>10 snaps</Text>
-            <Text style={styles.planPrice}>$1.50</Text>
-          </TouchableOpacity>
-        </View>
+        ) : (
+          <>
+            <View style={styles.planContainer}>
+              <TouchableOpacity
+                style={[styles.plan, selectedPlan === 'Monthly' && styles.selectedPlan]}
+                onPress={() => handlePlanSelection('Monthly')}
+              >
+                <Text style={styles.planType}>Monthly</Text>
+                <Text style={styles.planPrice}>$4.99/month</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.plan, selectedPlan === '20 snaps' && styles.selectedPlan]}
+                onPress={() => handlePlanSelection('20 snaps')}
+              >
+                <Text style={styles.planType}>20 snaps</Text>
+                <Text style={styles.planPrice}>$2.00</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.plan, selectedPlan === '10 snaps' && styles.selectedPlan]}
+                onPress={() => handlePlanSelection('10 snaps')}
+              >
+                <Text style={styles.planType}>10 snaps</Text>
+                <Text style={styles.planPrice}>$1.50</Text>
+              </TouchableOpacity>
+            </View>
 
-        <TouchableOpacity
-          style={[styles.continueButton, !selectedPlan && styles.disabledButton]}
-          onPress={handlePayment}
-          disabled={!selectedPlan || isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color="#FFF" />
-          ) : (
-            <Text style={styles.continueButtonText}>Continue</Text>
-          )}
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.continueButton, !selectedPlan && styles.disabledButton]}
+              onPress={handlePayment}
+              disabled={!selectedPlan || isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <Text style={styles.continueButtonText}>Continue</Text>
+              )}
+            </TouchableOpacity>
+          </>
+        )}
 
         <Modal
           animationType="slide"
@@ -326,10 +437,34 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
+  cancelButton: {
+    backgroundColor: '#FF4C4C', // Softer red color
+    paddingVertical: 10, // Reduced padding
+    paddingHorizontal: 20, // Reduced padding
+    borderRadius: 10, // Slightly rounded corners
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    alignSelf: 'center', // Center the button
+  },
+  cancelButtonText: {
+    fontSize: 16, // Slightly smaller font size
+    fontWeight: 'bold',
+    color: '#FFF',
+    textAlign: 'center', // Ensure text is centered
+  },
   disabledButton: {
     backgroundColor: '#888',
   },
   continueButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  cancelButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFF',

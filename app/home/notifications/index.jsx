@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Linking } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import LottieView from 'lottie-react-native';
@@ -17,7 +17,7 @@ export default function Notifications() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`${AWS_SERVER_URL}/events/`);
+        const response = await fetch(`${HOME_WIFI}/events/`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -36,9 +36,9 @@ export default function Notifications() {
   }, []);
 
   // Handler for notification click
-  const handleNotificationClick = () => {
-    // Navigate directly to the NotificationDetailScreen in the insideNotification folder
-    router.push('/home/notifications/notification');
+  const handleNotificationClick = (link) => {
+    // Open the link in the default browser
+    Linking.openURL(link);
   };
 
   if (loading) {
@@ -67,7 +67,7 @@ export default function Notifications() {
           <TouchableOpacity
             key={index}
             style={styles.notificationItem}
-            onPress={handleNotificationClick}  // No parameters needed, just navigate
+            onPress={() => handleNotificationClick(event.link)}  // Navigate to the event link
           >
             <View style={styles.notificationTopContainer}>
               <Text style={styles.smallNotification}>New</Text>

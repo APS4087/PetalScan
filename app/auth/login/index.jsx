@@ -33,7 +33,7 @@ export default function LoginScreen() {
 
       if (user.emailVerified) {
         setUser(userData); // Set the user in context
-        if (userData.userType === 'normal') {
+        if (userData.userType === 'normal' || userData.userType === 'premium') {
           router.push('/home');
         } else if (userData.userType === 'admin') {
           router.push('/adminHome');

@@ -7,6 +7,9 @@ import Icon from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
 import LottieView from 'lottie-react-native';
+import { db } from '../../../firebaseConfig';
+import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { useAuth } from '../../../context/authContext';
 
 const { width, height } = Dimensions.get('window');
 const AWS_SERVER_URL = 'http://3.26.185.87:8000';
@@ -14,6 +17,7 @@ const AWS_SERVER_URL = 'http://3.26.185.87:8000';
 export default function CameraScreen() {
   const router = useRouter();
   const cameraRef = useRef(null);
+  const { user } = useAuth();
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -23,6 +27,7 @@ export default function CameraScreen() {
   const [zoom, setZoom] = useState(0);
   const [scale, setScale] = useState(1); // State for pinch scale
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [subscription, setSubscription] = useState(null);
 
   // Set the camera height to maintain the aspect ratio
   const cameraHeight = width * (4 / 3); // 4:3 aspect ratio for the camera
@@ -34,21 +39,69 @@ export default function CameraScreen() {
       const { status: galleryStatus } = await MediaLibrary.requestPermissionsAsync();
       setHasGalleryPermission(galleryStatus === 'granted');
     })();
+
+    // Fetch the user's subscription details
+    const fetchSubscription = async () => {
+      if (user) {
+        const subscriptionRef = doc(collection(db, 'subscriptions'), user.uid);
+        const subscriptionDoc = await getDoc(subscriptionRef);
+        if (subscriptionDoc.exists()) {
+          setSubscription(subscriptionDoc.data());
+        }
+        console.log(subscriptionDoc.data());
+      }
+    };
+
+    // Fetch the user's snap count
+    const fetchSnapCount = async () => {
+      if (user) {
+        const userRef = doc(collection(db, 'users'), user.uid);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setPictureCount(userData.snaps || 3); // Default to 3 if no snaps field
+        }
+      }
+    };
+
+    fetchSubscription();
+    fetchSnapCount();
+  }, [user]);
+
+  useEffect(() => {
+    // Reset the picture count every 24 hours
+    const resetPictureCount = () => {
+      setPictureCount(3);
+    };
+
+    const interval = setInterval(resetPictureCount, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+    return () => clearInterval(interval);
   }, []);
 
   const takePicture = async () => {
-    if (pictureCount > 0 && cameraRef.current) {
+    if (subscription && subscription.plan === 'Monthly' && subscription.status === 'active') {
+      // Allow unlimited snaps for premium users
+      await captureAndProcessImage();
+    } else if (pictureCount > 0) {
+      // Allow limited snaps for non-premium users
+      await captureAndProcessImage();
+      setPictureCount(pictureCount - 1);
+      updateSnapCount(pictureCount - 1);
+    } else {
+      Alert.alert('Limit Reached', 'You have reached your daily limit. Purchase a snaps bundle for more!');
+    }
+  };
+
+  const captureAndProcessImage = async () => {
+    if (cameraRef.current) {
       try {
         const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
         setSelectedImage(photo.uri); // Set the captured image URI
-        setPictureCount(pictureCount - 1);
         savePictureToGallery(photo.uri);
         handleImageDetection(photo.uri); // Call for image processing
       } catch (error) {
         console.error('Error taking picture:', error);
       }
-    } else {
-      Alert.alert('Limit Reached', 'You have reached your daily limit. Purchase a snaps bundle for more!');
     }
   };
 
@@ -104,6 +157,13 @@ export default function CameraScreen() {
     }
   };
 
+  const updateSnapCount = async (newCount) => {
+    if (user) {
+      const userRef = doc(collection(db, 'users'), user.uid);
+      await updateDoc(userRef, { snaps: newCount });
+    }
+  };
+
   const onPinchEvent = (event) => {
     const { scale: newScale } = event.nativeEvent;
     if (newScale > 1) {
@@ -135,6 +195,10 @@ export default function CameraScreen() {
     }
   };
 
+  const navigateToPayment = () => {
+    router.push('/payment'); // Adjust the route as needed
+  };
+
   if (hasCameraPermission === null || hasGalleryPermission === null) {
     return <View />;
   }
@@ -159,8 +223,17 @@ export default function CameraScreen() {
         
         {/* Camera View */}
         <View style={styles.cameraWrapper}>
-          {/* "Snaps Left" Text hovering above Camera */}
-          <Text style={styles.snapsText}>Snaps Left: {pictureCount} / 3</Text>
+          {subscription && subscription.plan === 'Monthly' && subscription.status === 'active' ? (
+            <TouchableOpacity onPress={() => Alert.alert('Coming Soon', 'Real-time detection is currently in development.')} style={styles.realTimeButton}>
+              <Text style={styles.realTimeButtonText}>Real-Time Detection (In Dev)</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={navigateToPayment} style={styles.snapsButton}>
+              <Text style={styles.snapsText}>
+                Snaps Left: {pictureCount}
+              </Text>
+            </TouchableOpacity>
+          )}
   
           <PinchGestureHandler onGestureEvent={onPinchEvent}>
             <Camera
@@ -236,11 +309,30 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative', // This allows children to be positioned absolutely
   },
+  snapsButton: {
+    position: 'absolute',
+    top: height * 0.2, // Responsive positioning
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    padding: 9,
+    borderRadius: 10,
+    zIndex: 1,
+  },
   snapsText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: width * 0.04, // Responsive font size
+  },
+  realTimeButton: {
     position: 'absolute',
     top: height * 0.2, // Responsive positioning
     alignSelf: 'center',
     zIndex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    padding: 9,
+    borderRadius: 10,
+  },
+  realTimeButtonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: width * 0.04, // Responsive font size

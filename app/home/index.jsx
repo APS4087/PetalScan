@@ -7,7 +7,7 @@ import UserNavbar from '../../components/UserNavbar';
 import { useRouter } from 'expo-router';
 import images from '../../components/data';
 import { useAuth } from '../../context/authContext';
-import { getDocs, collection } from 'firebase/firestore';
+import { getDocs, collection, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 
 const { width, height } = Dimensions.get('window');
@@ -22,6 +22,7 @@ function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('Architecture'); // Default category
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -48,8 +49,20 @@ function HomeScreen() {
       }
     };
 
+    const fetchUserType = async () => {
+      if (user) {
+        const userRef = doc(collection(db, 'users'), user.uid);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setIsPremium(userData.userType === 'premium');
+        }
+      }
+    };
+
     fetchPlaces();
-  }, []);
+    fetchUserType();
+  }, [user]);
 
   if (loading) {
     return (
@@ -75,7 +88,10 @@ function HomeScreen() {
       <ScrollView style={styles.content}>
         {/* Header Section */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello, {user ? user.username : 'Guest'}</Text>
+          <Text style={styles.greeting}>
+            Hello, {user ? user.username : 'Guest'}
+            {isPremium && <Image source={images.crownIcon} style={styles.crownIcon} />}
+          </Text>
         </View>
 
         {/* Recommended Section */}
@@ -148,6 +164,11 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: width * 0.04,
     fontWeight: 'bold',
+  },
+  crownIcon: {
+    width: width * 0.05,
+    height: width * 0.05,
+    marginLeft: width * 0.04, 
   },
   icon: {
     width: width * 0.07,
@@ -233,7 +254,6 @@ const styles = StyleSheet.create({
     width: width * 0.9,
     borderRadius: 20,
     marginVertical: height * 0.01,
-   // marginHorizontal: width * 0.02,
     borderColor: '#cccccc',
     borderWidth: 1,
   },
