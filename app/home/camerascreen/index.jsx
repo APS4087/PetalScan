@@ -12,7 +12,7 @@ import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../../context/authContext';
 
 const { width, height } = Dimensions.get('window');
-const AWS_SERVER_URL = 'http://3.26.185.87:8000';
+const AWS_SERVER_URL = 'http://3.27.248.187:8000';
 
 export default function CameraScreen() {
   const router = useRouter();
